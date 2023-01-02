@@ -1,0 +1,35 @@
+architectury {
+    common(rootProject.enabled_platforms.split(","))
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+
+    modApi "com.teamresourceful.resourcefullib:resourcefullib-common-$minecraft_version:$rootProject.resourcefullib_version"
+    modApi "com.teamresourceful.resourcefulconfig:resourcefulconfig-common-$minecraft_version:$rootProject.resourcefulconfig_version"
+    modApi "earth.terrarium:botarium-common-$rootProject.minecraft_version:$rootProject.botarium_version"
+
+    modCompileOnly "mezz.jei:jei-$rootProject.minecraft_version-common-api:$rootProject.jei_version"
+    modRuntimeOnly "mezz.jei:jei-$rootProject.minecraft_version-common:$rootProject.jei_version"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api:$rootProject.rei_version"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin:$rootProject.rei_version"
+}
+
+processResources {
+    inputs.property "version", rootProject.version
+    inputs.property "mod_name", rootProject.mod_name
+    inputs.property "resourcefullib_version", rootProject.resourcefullib_version
+    inputs.property "resourcefulconfig_version", rootProject.resourcefulconfig_version
+    inputs.property "botarium_version", rootProject.botarium_version
+}
+
+def ENV = System.getenv()
+
+publishing {
+    publications {
+        mavenCommon(MavenPublication) {
+            artifactId = rootProject.archives_base_name
+            from components.java
+        }
+    }
+}

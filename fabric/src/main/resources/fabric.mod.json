@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "modid",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "",
+  "authors": [
+    ""
+  ],
+  "contact": {
+    "website": "https://www.curseforge.com/minecraft/mc-mods/modid",
+    "repo": "https://github.com/terrarium-earth/modid",
+    "issues": "https://github.com/terrarium-earth/modid/issues"
+  },
+  "license": "Terrarium Licence",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "earth.terrarium.modid.fabric.ModIdFabric",
+      "earth.terrarium.modid.ModId::postInit"
+    ],
+    "client": [
+      "earth.terrarium.modid.client.fabric.ModIdClientFabric"
+    ],
+    "modmenu": [
+      "earth.terrarium.modid.common.config.fabric.ModMenuConfig"
+    ]
+  },
+  "mixins": [
+    "modid.mixins.json",
+    "modid-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.12",
+    "minecraft": ">=1.19",
+    "resourcefullib": ">=${resourcefullib_version}",
+    "resourcefulconfig": ">=${resourcefulconfig_version}",
+    "botarium": ">=${botarium_version}"
+  }
+}
