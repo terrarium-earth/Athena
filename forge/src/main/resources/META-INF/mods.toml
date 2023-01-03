@@ -1,17 +1,17 @@
-
 modLoader = "javafml"
 loaderVersion = "[43,)"
 license = "Terrarium Licence"
 issueTrackerURL = "https://github.com/terrarium-earth/modid/issues"
+
 [[mods]]
 modId = "modid"
 version = "${version}"
-displayName = "${mod_name}"
+displayName = "ModName"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/modid"
 logoFile = "icon.png"
 authors = ""
-description = '''
-
-'''
+credits = ""
+description = ""
 
 [[dependencies.modid]]
 modId = "forge"

@@ -26,26 +26,27 @@ configurations {
 
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
-    modApi "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+    modApi "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version+$rootProject.minecraft_version"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
-
-    modApi "com.teamresourceful.resourcefullib:resourcefullib-fabric-$minecraft_version:$rootProject.resourcefullib_version"
-    modApi "com.teamresourceful.resourcefulconfig:resourcefulconfig-fabric-$minecraft_version:$rootProject.resourcefulconfig_version"
-    modApi "earth.terrarium:botarium-fabric-$rootProject.minecraft_version:$rootProject.botarium_version"
 
     modApi "com.terraformersmc:modmenu:$rootProject.modmenu_version"
 
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:$rootProject.rei_version"
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:$rootProject.rei_version"
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:$rootProject.rei_version"
+
+    modApi "com.teamresourceful.resourcefullib:resourcefullib-fabric-$minecraft_version:$rootProject.resourcefullib_version"
+    modApi "com.teamresourceful.resourcefulconfig:resourcefulconfig-fabric-$minecraft_version:$rootProject.resourcefulconfig_version"
+    modApi "earth.terrarium:botarium-fabric-$rootProject.minecraft_version:$rootProject.botarium_version"
 }
 
 processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property "fabric_loader_version", rootProject.fabric_loader_version
     filesMatching("fabric.mod.json") {
-        expand "version": rootProject.version, "mod_name": rootProject.mod_name, "resourcefullib_version": rootProject.resourcefullib_version, "resourcefulconfig_version": rootProject.resourcefulconfig_version, "botarium_version": rootProject.botarium_version
+        expand "version": rootProject.version, "fabric_loader_version": rootProject.fabric_loader_version, "resourcefullib_version": rootProject.resourcefullib_version, "resourcefulconfig_version": rootProject.resourcefulconfig_version, "botarium_version": rootProject.botarium_version
     }
 }
 
@@ -76,6 +77,10 @@ components.java {
     withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
         skip()
     }
+}
+
+repositories {
+    maven { url "https://maven.terraformersmc.com" }
 }
 
 def ENV = System.getenv()
