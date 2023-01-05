@@ -8,7 +8,7 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.function.Supplier;
 
-public class ModUtils {
+public class PlatformUtils {
     @ExpectPlatform
     public static CreativeModeTab createTab(ResourceLocation loc, Supplier<ItemStack> icon) {
         throw new NotImplementedException();

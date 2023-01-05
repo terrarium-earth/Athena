@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Supplier;
 
-public class ModUtilsImpl {
+public class PlatformUtilsImpl {
     public static CreativeModeTab createTab(ResourceLocation loc, Supplier<ItemStack> icon) {
         return FabricItemGroupBuilder.build(loc, icon);
     }

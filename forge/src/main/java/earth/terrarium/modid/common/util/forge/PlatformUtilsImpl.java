@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
-public class ModUtilsImpl {
+public class PlatformUtilsImpl {
     public static CreativeModeTab createTab(ResourceLocation loc, Supplier<ItemStack> icon) {
         return new CreativeModeTab(loc.getNamespace() + "." + loc.getPath()) {
             @Override

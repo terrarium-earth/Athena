@@ -14,8 +14,8 @@ public class ModId {
 
     public static void init() {
         CONFIGURATOR.registerConfig(ModIdConfig.class);
-        ModBlocks.BLOCKS.initialize();
-        ModItems.ITEMS.initialize();
+        ModBlocks.BLOCKS.init();
+        ModItems.ITEMS.init();
     }
 
     public static void postInit() {
