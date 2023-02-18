@@ -56,7 +56,10 @@ dependencies {
 processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     filesMatching("META-INF/mods.toml") {
-        expand "version": rootProject.version, "resourcefullib_version": rootProject.resourcefullib_version, "resourcefulconfig_version": rootProject.resourcefulconfig_version, "botarium_version": rootProject.botarium_version
+        expand "version": rootProject.version,
+                "resourcefullib_version": rootProject.resourcefullib_version,
+                "resourcefulconfig_version": rootProject.resourcefulconfig_version,
+                "botarium_version": rootProject.botarium_version
     }
 }
 

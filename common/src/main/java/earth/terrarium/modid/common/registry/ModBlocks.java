@@ -8,4 +8,6 @@ import net.minecraft.world.level.block.Block;
 
 public class ModBlocks {
     public static final ResourcefulRegistry<Block> BLOCKS = ResourcefulRegistries.create(Registry.BLOCK, ModId.MOD_ID);
+
+//    public static final RegistryEntry<Block> TEST_BLOCK = BLOCKS.register("test_block", () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE)));
 }

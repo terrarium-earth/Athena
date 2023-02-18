@@ -34,7 +34,7 @@
     "modid-common.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=${fabric_loader_version}",
+    "fabric": "*",
     "minecraft": ">=1.19",
     "resourcefullib": ">=${resourcefullib_version}",
     "resourcefulconfig": ">=${resourcefulconfig_version}",
