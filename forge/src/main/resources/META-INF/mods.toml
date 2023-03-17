@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[45,)"
 license = "Terrarium Licence"
 issueTrackerURL = "https://github.com/terrarium-earth/modid/issues"
 
@@ -16,7 +16,7 @@ description = ""
 [[dependencies.modid]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[45,)"
 ordering = "NONE"
 side = "BOTH"
 

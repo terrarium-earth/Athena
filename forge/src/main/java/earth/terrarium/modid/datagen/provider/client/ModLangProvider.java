@@ -11,8 +11,8 @@ import org.codehaus.plexus.util.StringUtils;
 import java.util.Objects;
 
 public class ModLangProvider extends LanguageProvider {
-    public ModLangProvider(DataGenerator pGenerator) {
-        super(pGenerator, ModId.MOD_ID, "en_us");
+    public ModLangProvider(DataGenerator generator) {
+        super(generator.getPackOutput(), ModId.MOD_ID, "en_us");
     }
 
     @Override

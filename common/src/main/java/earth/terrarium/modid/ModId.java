@@ -2,7 +2,7 @@ package earth.terrarium.modid;
 
 import com.mojang.logging.LogUtils;
 import com.teamresourceful.resourcefulconfig.common.config.Configurator;
-import earth.terrarium.modid.common.config.ModIdConfig;
+import earth.terrarium.modid.common.config.*;
 import earth.terrarium.modid.common.registry.ModBlocks;
 import earth.terrarium.modid.common.registry.ModItems;
 import org.slf4j.Logger;
