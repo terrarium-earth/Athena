@@ -129,18 +129,6 @@ subprojects {
             if (modLoader == "fabric") {
                 dependencies {
                     required.project "fabric-api"
-                    required.project "resourceful-lib"
-                    required.project "resourceful-config"
-                    required.project "botarium"
-                    optional.project "modmenu"
-                    optional.project "roughly-enough-items"
-                }
-            } else {
-                dependencies {
-                    required.project "resourceful-lib"
-                    required.project "resourceful-config"
-                    required.project "botarium"
-                    optional.project "roughly-enough-items"
                 }
             }
         }
@@ -161,20 +149,6 @@ subprojects {
                 if (modLoader == "fabric") {
                     relations {
                         requiredDependency "fabric-api"
-                        requiredDependency "resourceful-lib"
-                        requiredDependency "resourceful-config"
-                        requiredDependency "botarium"
-                        optionalDependency "modmenu"
-                        optionalDependency "jei"
-                        optionalDependency "roughly-enough-items"
-                    }
-                } else {
-                    relations {
-                        requiredDependency "resourceful-lib"
-                        requiredDependency "resourceful-config"
-                        requiredDependency "botarium"
-                        optionalDependency "jei"
-                        optionalDependency "roughly-enough-items"
                     }
                 }
             }

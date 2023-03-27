@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "stitch",
   "version": "${version}",
-  "name": "ModName",
+  "name": "Stitch",
   "description": "",
   "authors": [
     ""
@@ -10,7 +10,7 @@
   "contributors": [
   ],
   "contact": {
-    "website": "https://www.curseforge.com/minecraft/mc-mods/modid",
+    "website": "https://www.curseforge.com/minecraft/mc-mods/stitch",
     "repo": "https://github.com/terrarium-earth/${github_name}",
     "issues": "https://github.com/terrarium-earth/${github_name}/issues"
   },
@@ -19,25 +19,16 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "earth.terrarium.modid.fabric.ModIdFabric",
-      "earth.terrarium.modid.ModId::postInit"
-    ],
-    "client": [
-      "earth.terrarium.modid.client.fabric.ModIdClientFabric"
-    ],
-    "modmenu": [
-      "earth.terrarium.modid.common.config.fabric.ModMenuConfig"
+      "earth.terrarium.stitch.fabric.StitchFabric",
+      "earth.terrarium.stitch.Stitch::postInit"
     ]
   },
   "mixins": [
-    "modid.mixins.json",
-    "modid-common.mixins.json"
+    "stitch.mixins.json",
+    "stitch-common.mixins.json"
   ],
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.19",
-    "resourcefullib": ">=${resourcefullib_version}",
-    "resourcefulconfig": ">=${resourcefulconfig_version}",
-    "botarium": ">=${botarium_version}"
+    "minecraft": ">=1.19"
   }
 }

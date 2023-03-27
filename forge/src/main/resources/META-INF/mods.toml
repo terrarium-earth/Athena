@@ -4,46 +4,25 @@ license = "Terrarium Licence"
 issueTrackerURL = "https://github.com/terrarium-earth/${github_name}/issues"
 
 [[mods]]
-modId = "modid"
-version = "${version}"
-displayName = "ModName"
-displayURL = "https://www.curseforge.com/minecraft/mc-mods/modid"
-logoFile = "icon.png"
-authors = ""
-credits = ""
-description = ""
+    modId = "stitch"
+    version = "${version}"
+    displayName = "Stitch"
+    displayURL = "https://www.curseforge.com/minecraft/mc-mods/stitch"
+    logoFile = "icon.png"
+    authors = ""
+    credits = ""
+    description = ""
 
-[[dependencies.modid]]
-modId = "forge"
-mandatory = true
-versionRange = "[45,)"
-ordering = "NONE"
-side = "BOTH"
+[[dependencies.stitch]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "[45,)"
+    ordering = "NONE"
+    side = "BOTH"
 
-[[dependencies.modid]]
-modId = "minecraft"
-mandatory = true
-versionRange = "[1.19,)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.modid]]
-modId = "resourcefullib"
-mandatory = true
-versionRange = "[${resourcefullib_version},)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.modid]]
-modId = "resourcefulconfig"
-mandatory = true
-versionRange = "[${resourcefulconfig_version},)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.modid]]
-modId = "botarium"
-mandatory = true
-versionRange = "[${botarium_version},)"
-ordering = "NONE"
-side = "BOTH"
+[[dependencies.stitch]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "[1.19,)"
+    ordering = "NONE"
+    side = "BOTH"
