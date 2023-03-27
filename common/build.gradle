@@ -17,49 +17,8 @@ dependencies {
 
 processResources {
     inputs.property "version", rootProject.version
+    inputs.property "github_name", rootProject.github_name
     inputs.property "resourcefullib_version", rootProject.resourcefullib_version
     inputs.property "resourcefulconfig_version", rootProject.resourcefulconfig_version
     inputs.property "botarium_version", rootProject.botarium_version
-}
-
-def ENV = System.getenv()
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact remapJar
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-
-            artifactId = "$rootProject.mod_id-common-$rootProject.minecraft_version"
-
-            pom {
-                name = 'ModId'
-                description = ''
-                url = 'https://github.com/terrarium-earth/ModId'
-
-                scm {
-                    connection = 'git:https://github.com/terrarium-earth/ModId.git'
-                    developerConnection = 'git:https://github.com/terrarium-earth/ModId.git'
-                    url = 'https://github.com/terrarium-earth/ModId'
-                }
-
-                licenses {
-                    license {
-                        name = 'Terrarium Licence'
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            url = "https://maven.resourcefulbees.com/repository/terrarium/"
-            credentials {
-                username ENV.MAVEN_USER
-                password ENV.MAVEN_PASS
-            }
-        }
-    }
 }

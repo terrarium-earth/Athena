@@ -64,10 +64,41 @@ tasks.register("generateDiscordEmbed") {
     }
 }
 
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+
+    archivesBaseName = rootProject.archives_base_name
+    version = rootProject.mod_version
+    group = rootProject.maven_group
+
+    repositories {
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
+        }
+        maven { url = "https://maven.resourcefulbees.com/repository/maven-public/"}
+    }
+
+    tasks.withType(JavaCompile).tap {
+        configureEach {
+            options.encoding = "UTF-8"
+            options.release = 17
+        }
+    }
+
+    java {
+        withSourcesJar()
+    }
+}
+
 subprojects {
     apply plugin: "dev.architectury.loom"
     apply plugin: "com.modrinth.minotaur"
     apply plugin: "com.matthewprenger.cursegradle"
+    apply plugin: "maven-publish"
 
     loom {
         silentMojangMappingsLicense()
@@ -149,35 +180,44 @@ subprojects {
             }
         }
     }
-}
 
-allprojects {
-    apply plugin: "java"
-    apply plugin: "architectury-plugin"
-    apply plugin: "maven-publish"
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifact remapJar
+                artifact(sourcesJar) {
+                    builtBy remapSourcesJar
+                }
 
-    archivesBaseName = rootProject.archives_base_name
-    version = rootProject.mod_version
-    group = rootProject.maven_group
+                artifactId = "$rootProject.mod_id-$modLoader-$rootProject.minecraft_version"
 
-    repositories {
-        maven {
-            url "https://cursemaven.com"
-            content {
-                includeGroup "curse.maven"
+                pom {
+                    name = github_name
+                    description = ''
+                    url = "https://github.com/terrarium-earth/$github_name"
+
+                    scm {
+                        connection = "git:https://github.com/terrarium-earth/${github_name}.git"
+                        developerConnection = "git:https://github.com/terrarium-earth/${github_name}.git"
+                        url = "https://github.com/terrarium-earth/$github_name"
+                    }
+
+                    licenses {
+                        license {
+                            name = 'https://gist.github.com/CodexAdrian/4bb2a1868bb2d2a91ca74ea40424e69d'
+                        }
+                    }
+                }
             }
         }
-        maven { url = "https://nexus.resourcefulbees.com/repository/maven-public/"}
-    }
-
-    tasks.withType(JavaCompile).tap {
-        configureEach {
-            options.encoding = "UTF-8"
-            options.release = 17
+        repositories {
+            maven {
+                url = "https://maven.resourcefulbees.com/repository/terrarium/"
+                credentials {
+                    username env.MAVEN_USER
+                    password env.MAVEN_PASS
+                }
+            }
         }
-    }
-
-    java {
-        withSourcesJar()
     }
 }
