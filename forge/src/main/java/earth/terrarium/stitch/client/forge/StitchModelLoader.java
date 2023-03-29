@@ -30,7 +30,7 @@ public class StitchModelLoader implements IGeometryLoader<StitchModelLoader.Geom
     public Geometry read(JsonObject json, JsonDeserializationContext context) throws JsonParseException {
         final var model = this.factory.create(json);
         final var loaderLessJson = json.deepCopy();
-        loaderLessJson.remove("loader");
+        loaderLessJson.remove("stitch:loader");
         final var fallback = BlockModel.fromString(loaderLessJson.toString());
         return new Geometry(model, fallback);
     }
