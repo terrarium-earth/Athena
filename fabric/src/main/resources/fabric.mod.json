@@ -3,9 +3,9 @@
   "id": "stitch",
   "version": "${version}",
   "name": "Stitch",
-  "description": "",
+  "description": "Baked CTM library.",
   "authors": [
-    ""
+    "ThatGravyBoat"
   ],
   "contributors": [
   ],
@@ -17,18 +17,18 @@
   "license": "Terrarium Licence",
   "icon": "icon.png",
   "environment": "*",
-  "entrypoints": {
-    "main": [
-      "earth.terrarium.stitch.fabric.StitchFabric",
-      "earth.terrarium.stitch.Stitch::postInit"
-    ]
-  },
   "mixins": [
-    "stitch.mixins.json",
-    "stitch-common.mixins.json"
+    "stitch.mixins.json"
   ],
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "library"
+      ]
+    }
+  },
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.19"
+    "minecraft": ">=1.19.4"
   }
 }

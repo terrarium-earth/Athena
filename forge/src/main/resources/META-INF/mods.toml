@@ -9,9 +9,9 @@ issueTrackerURL = "https://github.com/terrarium-earth/${github_name}/issues"
     displayName = "Stitch"
     displayURL = "https://www.curseforge.com/minecraft/mc-mods/stitch"
     logoFile = "icon.png"
-    authors = ""
+    authors = "ThatGravyBoat"
     credits = ""
-    description = ""
+    description = "Baked CTM library."
 
 [[dependencies.stitch]]
     modId = "forge"

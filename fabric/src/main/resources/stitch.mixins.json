@@ -1,11 +1,13 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "earth.terrarium.stitch.mixin.fabric",
+  "package": "earth.terrarium.stitch.mixins.fabric",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
-  ],
   "client": [
+    "BlockModelDeserializerMixin",
+    "BlockModelMixin",
+    "ModelBakeryMixin",
+    "ModelManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
