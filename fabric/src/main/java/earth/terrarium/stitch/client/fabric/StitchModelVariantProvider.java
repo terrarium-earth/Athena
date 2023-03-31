@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import earth.terrarium.stitch.client.models.StitchModelFactory;
 import earth.terrarium.stitch.client.models.fabric.FactoryManagerImpl;
 import net.fabricmc.fabric.api.client.model.ModelProviderContext;
-import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.fabricmc.fabric.api.client.model.ModelVariantProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
@@ -22,7 +21,7 @@ public class StitchModelVariantProvider implements ModelVariantProvider {
     }
 
     @Override
-    public @Nullable UnbakedModel loadModelVariant(ModelResourceLocation modelId, ModelProviderContext context) throws ModelProviderException {
+    public @Nullable UnbakedModel loadModelVariant(ModelResourceLocation modelId, ModelProviderContext context) {
         if ("inventory".equals(modelId.getVariant())) return null;
         JsonObject json = FactoryManagerImpl.getData(this.id, modelId);
         if (json != null) {

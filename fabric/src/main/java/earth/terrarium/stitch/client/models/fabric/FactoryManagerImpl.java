@@ -5,6 +5,7 @@ import earth.terrarium.stitch.client.fabric.StitchModelVariantProvider;
 import earth.terrarium.stitch.client.models.StitchModelFactory;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.ApiStatus;
@@ -45,10 +46,20 @@ public class FactoryManagerImpl {
         for (ModelBakery.LoadedJson loadedJson : loadedJsons) {
             if (loadedJson.data() instanceof JsonObject json) {
                 if (json.get("variants") instanceof JsonObject variants) {
-                    if (variants.get("") instanceof JsonObject variant) {
-                        String model = GsonHelper.getAsString(variant, "model", "");
-                        var output = MODEL_RAW_DATA.get(type).get(ResourceLocation.tryParse(model));
-                        if (output != null) return output;
+                    for (var entry : variants.entrySet()) {
+                        boolean valid = entry.getKey().equals("");
+                        if (!valid) {
+                            try {
+                                ModelResourceLocation modelId = new ModelResourceLocation(id, entry.getKey());
+                                if (id.equals(modelId)) valid = true;
+                            } catch (Exception ignored){}
+                        }
+
+                        if (valid && variants.get(entry.getKey()) instanceof JsonObject variant) {
+                            String model = GsonHelper.getAsString(variant, "model", "");
+                            var output = MODEL_RAW_DATA.get(type).get(ResourceLocation.tryParse(model));
+                            if (output != null) return output;
+                        }
                     }
                 }
             }

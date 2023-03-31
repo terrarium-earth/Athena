@@ -26,7 +26,7 @@ public class ModelBakeryMixin {
     @Inject(method = "loadTopLevel", at = @At("HEAD"))
     private void stitch$onStart(ModelResourceLocation id, CallbackInfo ci) {
         if (id.equals(MISSING_MODEL_LOCATION)) { //Means start because this is the first thing loaded after the lists and maps are set.
-            FactoryManagerImpl.setGetter(model -> this.blockStateResources.get(model));
+            FactoryManagerImpl.setGetter(this.blockStateResources::get);
         }
     }
 
