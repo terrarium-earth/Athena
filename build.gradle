@@ -79,7 +79,7 @@ allprojects {
                 includeGroup "curse.maven"
             }
         }
-        maven { url = "https://maven.resourcefulbees.com/repository/maven-public/"}
+        maven { url = "https://maven.resourcefulbees.com/repository/maven-public/" }
     }
 
     tasks.withType(JavaCompile).tap {
@@ -120,7 +120,7 @@ subprojects {
 
     if (env.MODRINTH_TOKEN) {
         modrinth {
-            projectId = env.MODRINTH_PROJECT
+            projectId = modrinth_id
             uploadFile = tasks.remapJar
             gameVersions = [minecraft_version]
             loaders = [modLoader]
@@ -138,7 +138,7 @@ subprojects {
         curseforge {
             apiKey = env.CURSE_TOKEN
             project {
-                id = env.CURSE_PROJECT
+                id = curse_id
                 changelog = changelogText
                 releaseType = 'release'
                 addGameVersion minecraft_version
