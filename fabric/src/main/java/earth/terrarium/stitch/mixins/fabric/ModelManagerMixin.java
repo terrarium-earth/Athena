@@ -1,8 +1,8 @@
 package earth.terrarium.stitch.mixins.fabric;
 
 import com.mojang.datafixers.util.Pair;
-import earth.terrarium.stitch.client.models.fabric.BlockModelHook;
-import earth.terrarium.stitch.client.models.fabric.FactoryManagerImpl;
+import earth.terrarium.stitch.api.client.models.fabric.BlockModelHook;
+import earth.terrarium.stitch.api.client.models.fabric.FactoryManagerImpl;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.resources.ResourceLocation;

@@ -2,8 +2,8 @@ package earth.terrarium.stitch.mixins.forge;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import earth.terrarium.stitch.client.forge.StitchModelLoader;
-import earth.terrarium.stitch.client.models.forge.FactoryManagerImpl;
+import earth.terrarium.stitch.api.client.forge.StitchModelLoader;
+import earth.terrarium.stitch.api.client.models.forge.FactoryManagerImpl;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.client.model.ExtendedBlockModelDeserializer;

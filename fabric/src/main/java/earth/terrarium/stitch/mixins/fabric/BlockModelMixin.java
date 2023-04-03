@@ -1,7 +1,7 @@
 package earth.terrarium.stitch.mixins.fabric;
 
 import com.google.gson.JsonObject;
-import earth.terrarium.stitch.client.models.fabric.BlockModelHook;
+import earth.terrarium.stitch.api.client.models.fabric.BlockModelHook;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;

@@ -20,6 +20,11 @@
   "mixins": [
     "stitch.mixins.json"
   ],
+  "entrypoints": {
+    "client": [
+      "earth.terrarium.stitch.impl.client.DefaultModels::init"
+    ]
+  },
   "custom": {
     "modmenu": {
       "badges": [

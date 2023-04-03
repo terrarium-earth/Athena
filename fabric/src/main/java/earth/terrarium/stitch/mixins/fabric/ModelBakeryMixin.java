@@ -1,6 +1,6 @@
 package earth.terrarium.stitch.mixins.fabric;
 
-import earth.terrarium.stitch.client.models.fabric.FactoryManagerImpl;
+import earth.terrarium.stitch.api.client.models.fabric.FactoryManagerImpl;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
