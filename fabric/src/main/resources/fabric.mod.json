@@ -3,7 +3,7 @@
   "id": "stitch",
   "version": "${version}",
   "name": "Stitch",
-  "description": "Baked CTM library.",
+  "description": "Baked Model Loader",
   "authors": [
     "ThatGravyBoat"
   ],

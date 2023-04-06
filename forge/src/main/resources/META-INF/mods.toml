@@ -11,7 +11,7 @@ issueTrackerURL = "https://github.com/terrarium-earth/${github_name}/issues"
     logoFile = "icon.png"
     authors = "ThatGravyBoat"
     credits = ""
-    description = "Baked CTM library."
+    description = "Baked Model Loader"
 
 [[dependencies.stitch]]
     modId = "forge"
@@ -23,6 +23,6 @@ issueTrackerURL = "https://github.com/terrarium-earth/${github_name}/issues"
 [[dependencies.stitch]]
     modId = "minecraft"
     mandatory = true
-    versionRange = "[1.19,)"
+    versionRange = "[1.19.4,)"
     ordering = "NONE"
     side = "BOTH"
