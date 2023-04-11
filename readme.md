@@ -1,4 +1,4 @@
-# Stitch
+# Athena
 
 We be stitching things together to make things together!
 
