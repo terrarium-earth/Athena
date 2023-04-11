@@ -18,15 +18,8 @@ sourceSets {
 
 loom {
     forge {
-        mixinConfig "${project.mod_id}.mixins.json"
-        dataGen {
-            mod project.mod_id
-        }
-    }
-    runs {
-        data {
-            programArgs "--existing", project(":common").file("src/main/resources").absolutePath
-        }
+        mixinConfig "athena.mixins.json"
+        mixinConfig "athena-forge.mixins.json"
     }
 }
 

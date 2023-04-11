@@ -4,23 +4,23 @@ license = "Terrarium Licence"
 issueTrackerURL = "https://github.com/terrarium-earth/${github_name}/issues"
 
 [[mods]]
-    modId = "stitch"
+    modId = "athena"
     version = "${version}"
-    displayName = "Stitch"
-    displayURL = "https://www.curseforge.com/minecraft/mc-mods/stitch"
+    displayName = "Athena"
+    displayURL = "https://www.curseforge.com/minecraft/mc-mods/athena"
     logoFile = "icon.png"
     authors = "ThatGravyBoat"
     credits = ""
-    description = "Baked Model Loader"
+    description = "Crossplatform Baked Model Loader"
 
-[[dependencies.stitch]]
+[[dependencies.athena]]
     modId = "forge"
     mandatory = true
     versionRange = "[45,)"
     ordering = "NONE"
     side = "BOTH"
 
-[[dependencies.stitch]]
+[[dependencies.athena]]
     modId = "minecraft"
     mandatory = true
     versionRange = "[1.19.4,)"

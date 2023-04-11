@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "stitch",
+  "id": "athena",
   "version": "${version}",
-  "name": "Stitch",
-  "description": "Baked Model Loader",
+  "name": "Athena",
+  "description": "Crossplatform Baked Model Loader",
   "authors": [
     "ThatGravyBoat"
   ],
   "contributors": [
   ],
   "contact": {
-    "website": "https://www.curseforge.com/minecraft/mc-mods/stitch",
+    "website": "https://www.curseforge.com/minecraft/mc-mods/athena",
     "repo": "https://github.com/terrarium-earth/${github_name}",
     "issues": "https://github.com/terrarium-earth/${github_name}/issues"
   },
@@ -18,11 +18,11 @@
   "icon": "icon.png",
   "environment": "*",
   "mixins": [
-    "stitch.mixins.json"
+      "athena.mixins.json"
   ],
   "entrypoints": {
     "client": [
-      "earth.terrarium.stitch.impl.client.DefaultModels::init"
+      "earth.terrarium.athena.impl.client.DefaultModels::init"
     ]
   },
   "custom": {
