@@ -3,7 +3,11 @@ package earth.terrarium.athena.api.client.models;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
 import net.minecraft.world.level.block.Rotation;
 
-public record AthenaQuad(int sprite, float left, float right, float top, float bottom, Rotation rotation, float depth) {
+public record AthenaQuad(int sprite, float left, float right, float top, float bottom, Rotation rotation, float depth, boolean cull) {
+
+    public AthenaQuad(int sprite, float left, float right, float top, float bottom, Rotation rotation, float depth) {
+        this(sprite, left, right, top, bottom, rotation, depth, depth == 0);
+    }
 
     public static AthenaQuad withSprite(int sprite) {
         return withRotation(sprite, Rotation.NONE);

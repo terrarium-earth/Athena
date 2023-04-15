@@ -25,7 +25,7 @@ public class PaneConnectedBlockModel extends ConnectedBlockModel {
     public static final AthenaModelFactory FACTORY = new Factory();
 
     private static final List<AthenaQuad> CENTER = List.of(new AthenaQuad(1, 0, 1, 1, 0, Rotation.NONE, 0.4375f));
-    private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(0, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
+    private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
 
     public PaneConnectedBlockModel(Int2ObjectMap<Material> materials) {
         super(materials);
@@ -69,11 +69,11 @@ public class PaneConnectedBlockModel extends ConnectedBlockModel {
         return List.of();
     }
 
-    private static final AthenaQuad TOP_MIDDLE = new AthenaQuad(0, 0.4375f, 0.5625f, 0.5625f, 0.4375f, Rotation.NONE, 0f);
-    private static final AthenaQuad NORTH = new AthenaQuad(0, 0.4375f, 0.5625f, 1f, 0.5625f, Rotation.NONE, 0f);
-    private static final AthenaQuad SOUTH = new AthenaQuad(0, 0.4375f, 0.5625f, 0.4375f, 0f, Rotation.NONE, 0f);
-    private static final AthenaQuad EAST = new AthenaQuad(0, 0.5625f, 1f, 0.5625f, 0.4375f, Rotation.NONE, 0f);
-    private static final AthenaQuad WEST = new AthenaQuad(0, 0f, 0.4375f, 0.5625f, 0.4375f, Rotation.NONE, 0f);
+    private static final AthenaQuad TOP_MIDDLE = new AthenaQuad(5, 0.4375f, 0.5625f, 0.5625f, 0.4375f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad NORTH = new AthenaQuad(5, 0.4375f, 0.5625f, 1f, 0.5625f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad SOUTH = new AthenaQuad(5, 0.4375f, 0.5625f, 0.4375f, 0f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad EAST = new AthenaQuad(5, 0.5625f, 1f, 0.5625f, 0.4375f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad WEST = new AthenaQuad(5, 0f, 0.4375f, 0.5625f, 0.4375f, Rotation.NONE, 0f, false);
 
     private List<AthenaQuad> getTopQuad(BlockState state, Direction.AxisDirection direction) {
         boolean north = AthenaUtils.getFromDir(state, Direction.NORTH);
@@ -111,7 +111,10 @@ public class PaneConnectedBlockModel extends ConnectedBlockModel {
 
         @Override
         public Supplier<AthenaBlockModel> create(JsonObject json) {
-            final var materials = CtmUtils.parseCtmMaterials(GsonHelper.getAsJsonObject(json, "ctm_textures"));
+            final var textureObject = GsonHelper.getAsJsonObject(json, "ctm_textures");
+            final var materials = CtmUtils.parseCtmMaterials(textureObject);
+            materials.put(5, CtmUtils.blockMat(GsonHelper.getAsString(textureObject, "edge", GsonHelper.getAsString(textureObject, "particle"))));
+            materials.put(6, CtmUtils.blockMat(GsonHelper.getAsString(textureObject, "side_edge", GsonHelper.getAsString(textureObject, "particle"))));
             return () -> new PaneConnectedBlockModel(materials);
         }
     }

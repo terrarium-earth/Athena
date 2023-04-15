@@ -24,7 +24,7 @@ public class PanePillarBlockModel extends ConnectedBlockModel {
 
     public static final AthenaModelFactory FACTORY = new Factory();
 
-    private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(0, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
+    private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
 
     public PanePillarBlockModel(Int2ObjectMap<Material> materials) {
         super(materials);
@@ -70,11 +70,11 @@ public class PanePillarBlockModel extends ConnectedBlockModel {
         return List.of();
     }
 
-    private static final AthenaQuad TOP_MIDDLE = new AthenaQuad(0, 0.4375f, 0.5625f, 0.5625f, 0.4375f, Rotation.NONE, 0f);
-    private static final AthenaQuad NORTH = new AthenaQuad(0, 0.4375f, 0.5625f, 1f, 0.5625f, Rotation.NONE, 0f);
-    private static final AthenaQuad SOUTH = new AthenaQuad(0, 0.4375f, 0.5625f, 0.4375f, 0f, Rotation.NONE, 0f);
-    private static final AthenaQuad EAST = new AthenaQuad(0, 0.5625f, 1f, 0.5625f, 0.4375f, Rotation.NONE, 0f);
-    private static final AthenaQuad WEST = new AthenaQuad(0, 0f, 0.4375f, 0.5625f, 0.4375f, Rotation.NONE, 0f);
+    private static final AthenaQuad TOP_MIDDLE = new AthenaQuad(5, 0.4375f, 0.5625f, 0.5625f, 0.4375f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad NORTH = new AthenaQuad(5, 0.4375f, 0.5625f, 1f, 0.5625f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad SOUTH = new AthenaQuad(5, 0.4375f, 0.5625f, 0.4375f, 0f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad EAST = new AthenaQuad(5, 0.5625f, 1f, 0.5625f, 0.4375f, Rotation.NONE, 0f, false);
+    private static final AthenaQuad WEST = new AthenaQuad(5, 0f, 0.4375f, 0.5625f, 0.4375f, Rotation.NONE, 0f, false);
 
     private List<AthenaQuad> getTopQuad(BlockState state, Direction.AxisDirection direction) {
         boolean north = AthenaUtils.getFromDir(state, Direction.NORTH);
@@ -126,6 +126,8 @@ public class PanePillarBlockModel extends ConnectedBlockModel {
             materials.put(2, CtmUtils.blockMat(GsonHelper.getAsString(json, "center")));
             materials.put(3, CtmUtils.blockMat(GsonHelper.getAsString(json, "bottom")));
 
+            materials.put(5, CtmUtils.blockMat(GsonHelper.getAsString(json, "edge", GsonHelper.getAsString(json, "particle"))));
+            materials.put(6, CtmUtils.blockMat(GsonHelper.getAsString(json, "side_edge", GsonHelper.getAsString(json, "particle"))));
             return materials;
         }
     }

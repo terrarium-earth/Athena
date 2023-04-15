@@ -55,7 +55,7 @@ public class AthenaBakedModel implements IDynamicBakedModel {
             List<AthenaQuad> culledQuads = new ArrayList<>();
             List<AthenaQuad> unculledQuads = new ArrayList<>();
             for (AthenaQuad quad : this.model.getQuads(level, state, pos, direction)) {
-                if (quad.depth() == 0f) {
+                if (quad.cull()) {
                     culledQuads.add(quad);
                 } else {
                     unculledQuads.add(quad);
