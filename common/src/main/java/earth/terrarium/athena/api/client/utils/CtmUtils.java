@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Rotation;
 
+import java.util.function.Function;
+
 public final class CtmUtils {
 
     public static int getTexture(boolean first, boolean second, boolean firstSecond) {
@@ -32,6 +34,14 @@ public final class CtmUtils {
 
     public static Material blockMat(String id) {
         return new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(id));
+    }
+
+    public static <I, O> O tryParse(I input, Function<I, O> parser) {
+        try {
+            return parser.apply(input);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

@@ -1,1 +1,4 @@
-Initial Release
+Added more options to CTM to allow for the addition of CTM per face.
+Fixed flipped UV's on Forge.
+Changed glass pane culling to smart culling.
+Added options to glass panes for top and edge textures.

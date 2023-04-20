@@ -4,10 +4,11 @@ import com.google.gson.JsonObject;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelFactory;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
-import earth.terrarium.athena.api.client.utils.CtmUtils;
 import earth.terrarium.athena.api.client.utils.AthenaUtils;
+import earth.terrarium.athena.api.client.utils.CtmUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,16 +19,20 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class PanePillarBlockModel extends ConnectedBlockModel {
+public class PanePillarBlockModel implements AthenaBlockModel {
 
     public static final AthenaModelFactory FACTORY = new Factory();
 
     private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
 
+    private final Int2ObjectMap<Material> materials;
+
+
     public PanePillarBlockModel(Int2ObjectMap<Material> materials) {
-        super(materials);
+        this.materials = materials;
     }
 
     @Override
@@ -70,6 +75,15 @@ public class PanePillarBlockModel extends ConnectedBlockModel {
         return List.of();
     }
 
+    @Override
+    public Int2ObjectMap<TextureAtlasSprite> getTextures(Function<Material, TextureAtlasSprite> getter) {
+        final var textures = new Int2ObjectArrayMap<TextureAtlasSprite>();
+        for (var entry : this.materials.int2ObjectEntrySet()) {
+            textures.put(entry.getIntKey(), getter.apply(entry.getValue()));
+        }
+        return textures;
+    }
+
     private static final AthenaQuad TOP_MIDDLE = new AthenaQuad(5, 0.4375f, 0.5625f, 0.5625f, 0.4375f, Rotation.NONE, 0f, false);
     private static final AthenaQuad NORTH = new AthenaQuad(5, 0.4375f, 0.5625f, 1f, 0.5625f, Rotation.NONE, 0f, false);
     private static final AthenaQuad SOUTH = new AthenaQuad(5, 0.4375f, 0.5625f, 0.4375f, 0f, Rotation.NONE, 0f, false);
@@ -100,13 +114,6 @@ public class PanePillarBlockModel extends ConnectedBlockModel {
         if (west) quads.add(WEST);
 
         return quads;
-    }
-
-    protected boolean isConnected(BlockState other, BlockState state, Direction direction) {
-        if (other.getBlock() == state.getBlock()) {
-            return AthenaUtils.getFromDir(other, direction.getCounterClockWise()) && AthenaUtils.getFromDir(other, direction.getClockWise());
-        }
-        return false;
     }
 
     private static class Factory implements AthenaModelFactory {

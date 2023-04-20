@@ -10,7 +10,6 @@ public class DefaultModels {
 
     public static void init() {
         FactoryManager.register(new ResourceLocation(MODID, "ctm"), ConnectedBlockModel.FACTORY);
-        FactoryManager.register(new ResourceLocation(MODID, "horizontal_ctm"), HorizontalConnectedBlockModel.FACTORY);
         FactoryManager.register(new ResourceLocation(MODID, "carpet_ctm"), ConnectedCarpetBlockModel.FACTORY);
         FactoryManager.register(new ResourceLocation(MODID, "pane_ctm"), PaneConnectedBlockModel.FACTORY);
         FactoryManager.register(new ResourceLocation(MODID, "giant"), GiantBlockModel.FACTORY);
