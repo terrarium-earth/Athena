@@ -11,10 +11,10 @@
   ],
   "contact": {
     "website": "https://www.curseforge.com/minecraft/mc-mods/athena",
-    "repo": "https://github.com/terrarium-earth/${github_name}",
-    "issues": "https://github.com/terrarium-earth/${github_name}/issues"
+    "repo": "https://github.com/terrarium-earth/athena",
+    "issues": "https://github.com/terrarium-earth/athena/issues"
   },
-  "license": "Terrarium Licence",
+  "license": "MIT",
   "icon": "icon.png",
   "environment": "*",
   "mixins": [
@@ -34,6 +34,6 @@
   },
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.20.1"
+    "minecraft": ">=1.20"
   }
 }

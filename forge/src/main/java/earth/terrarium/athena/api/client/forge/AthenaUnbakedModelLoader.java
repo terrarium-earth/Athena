@@ -21,6 +21,10 @@ public class AthenaUnbakedModelLoader {
     public @Nullable UnbakedModel loadModel(ModelResourceLocation modelId) {
         if ("inventory".equals(modelId.getVariant())) return null;
         JsonObject json = AthenaDataLoader.getData(this.id, modelId);
+        return this.loadModel(json);
+    }
+
+    public UnbakedModel loadModel(JsonObject json) {
         if (json != null) {
             return new AthenaUnbakedModel(this.factory.create(json));
         }
