@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[45,)"
+loaderVersion = "[47,)"
 license = "Terrarium Licence"
 issueTrackerURL = "https://github.com/terrarium-earth/${github_name}/issues"
 
@@ -16,13 +16,13 @@ issueTrackerURL = "https://github.com/terrarium-earth/${github_name}/issues"
 [[dependencies.athena]]
     modId = "forge"
     mandatory = true
-    versionRange = "[45,)"
+    versionRange = "[47,)"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.athena]]
     modId = "minecraft"
     mandatory = true
-    versionRange = "[1.19.4,)"
+    versionRange = "[1.20.1,)"
     ordering = "NONE"
     side = "BOTH"
