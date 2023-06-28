@@ -4,7 +4,8 @@ architectury {
 
 loom {
     forge {
-        mixinConfig("heracles-common.mixins.json")
+        mixinConfig("athena.mixins.json")
+        mixinConfig("athena-forge.mixins.json")
     }
 }
 
