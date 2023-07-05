@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelFactory;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
+import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -12,7 +13,6 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class GiantBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public List<AthenaQuad> getQuads(BlockAndTintGetter level, BlockState blockState, BlockPos pos, Direction direction) {
+    public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState blockState, BlockPos pos, Direction direction) {
         int x = Math.abs(pos.getX());
         int y = Math.abs(pos.getY());
         int z = Math.abs(pos.getZ());

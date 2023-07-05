@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelFactory;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
+import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -12,7 +13,6 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class LimitedPillarBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public List<AthenaQuad> getQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
+    public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
         final BlockState above = level.getBlockState(pos.relative(direction));
 
         if (above.is(state.getBlock())) {
@@ -47,8 +47,8 @@ public class LimitedPillarBlockModel implements AthenaBlockModel {
             return CAP;
         }
 
-        final boolean min = level.getBlockState(pos.above()).is(state.getBlock());
-        final boolean max = level.getBlockState(pos.below()).is(state.getBlock());
+        final boolean min = level.getAppearance(pos.above(), direction).is(state.getBlock());
+        final boolean max = level.getAppearance(pos.below(), direction).is(state.getBlock());
 
         if (min && max) {
             return CENTER;

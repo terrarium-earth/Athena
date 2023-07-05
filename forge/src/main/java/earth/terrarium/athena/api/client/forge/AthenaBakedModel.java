@@ -49,12 +49,13 @@ public class AthenaBakedModel implements IDynamicBakedModel {
 
     @Override
     public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData data) {
+        WrappedGetter getter = new WrappedGetter(level);
         final NullableEnumMap<Direction, List<BakedQuad>> quads = new NullableEnumMap<>(Direction.class);
         List<BakedQuad> nonCullQuads = new ArrayList<>();
         for (Direction direction : DIRECTIONS) {
             List<AthenaQuad> culledQuads = new ArrayList<>();
             List<AthenaQuad> unculledQuads = new ArrayList<>();
-            for (AthenaQuad quad : this.model.getQuads(level, state, pos, direction)) {
+            for (AthenaQuad quad : this.model.getQuads(getter, state, pos, direction)) {
                 if (quad.cull()) {
                     culledQuads.add(quad);
                 } else {

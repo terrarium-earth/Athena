@@ -53,9 +53,10 @@ public class AthenaBakedModel implements BakedModel, FabricBakedModel {
     }
 
     private void emitQuads(QuadEmitter emitter, @Nullable BlockAndTintGetter level, @Nullable BlockState state, @Nullable BlockPos pos) {
-        for (Direction value : DIRECTIONS) {
-            if (level != null && state != null && pos != null) {
-                for (var sprite : model.getQuads(level, state, pos, value)) {
+        if (level != null && state != null && pos != null) {
+            WrappedGetter getter = new WrappedGetter(level);
+            for (Direction value : DIRECTIONS) {
+                for (var sprite : model.getQuads(getter, state, pos, value)) {
                     TextureAtlasSprite texture = textures.get(sprite.sprite());
                     if (texture == null) {
                         continue;
@@ -70,8 +71,8 @@ public class AthenaBakedModel implements BakedModel, FabricBakedModel {
                         case COUNTERCLOCKWISE_90 -> flag |= MutableQuadView.BAKE_ROTATE_270;
                     }
 
-                    emitter.spriteBake(0, texture, flag);
-                    emitter.spriteColor(0, -1, -1, -1, -1);
+                    emitter.spriteBake(texture, flag);
+                    emitter.color(-1, -1, -1, -1);
                     emitter.emit();
                 }
             }

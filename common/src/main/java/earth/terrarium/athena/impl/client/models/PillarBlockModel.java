@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelFactory;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
+import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
 import earth.terrarium.athena.api.client.utils.AthenaUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -13,7 +14,6 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -35,7 +35,7 @@ public class PillarBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public List<AthenaQuad> getQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
+    public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
         if (!state.hasProperty(BlockStateProperties.AXIS)) return List.of();
 
         if (state.getValue(BlockStateProperties.AXIS) == direction.getAxis()) {
@@ -47,8 +47,8 @@ public class PillarBlockModel implements AthenaBlockModel {
         final Rotation rotate = CtmUtils.getPillarRotation(axis, direction);
 
         final var minMax = AthenaUtils.getMinMax(axis);
-        final boolean min = level.getBlockState(pos.relative(minMax.getFirst())) == state;
-        final boolean max = level.getBlockState(pos.relative(minMax.getSecond())) == state;
+        final boolean min = level.getAppearance(pos.relative(minMax.getFirst()), direction) == state;
+        final boolean max = level.getAppearance(pos.relative(minMax.getSecond()), direction) == state;
 
         if (min && max) {
             return List.of(AthenaQuad.withRotation(2, rotate));

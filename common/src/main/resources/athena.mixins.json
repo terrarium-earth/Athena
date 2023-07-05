@@ -1,12 +1,12 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "earth.terrarium.athena.mixins",
-    "compatibilityLevel": "JAVA_17",
-    "client": [
-        "ModelBakeryMixin"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+  "required": true,
+  "minVersion": "0.8",
+  "package": "earth.terrarium.athena.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "ModelBakeryMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelFactory;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
+import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
 import earth.terrarium.athena.api.client.utils.AthenaUtils;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -13,7 +14,6 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -36,7 +36,7 @@ public class PanePillarBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public List<AthenaQuad> getQuads(BlockAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
+    public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
         if (direction.getAxis().isVertical()) {
             if (level.getBlockState(pos.relative(direction)) == state) {
                 return List.of();
@@ -47,8 +47,8 @@ public class PanePillarBlockModel implements AthenaBlockModel {
         final var rightState = AthenaUtils.getFromDir(state, direction.getCounterClockWise());
         final var leftState = AthenaUtils.getFromDir(state, direction.getClockWise());
 
-        final var upBlockState = level.getBlockState(pos.above());
-        final var downBlockState = level.getBlockState(pos.below());
+        final var upBlockState = level.getAppearance(pos.above(), direction);
+        final var downBlockState = level.getAppearance(pos.below(), direction);
 
         final var upState = upBlockState.is(state.getBlock()) && AthenaUtils.getFromDir(upBlockState, direction.getCounterClockWise()) && AthenaUtils.getFromDir(upBlockState, direction.getClockWise());
         final var belowState = downBlockState.is(state.getBlock()) && AthenaUtils.getFromDir(downBlockState, direction.getCounterClockWise()) && AthenaUtils.getFromDir(downBlockState, direction.getClockWise());

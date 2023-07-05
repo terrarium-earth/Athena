@@ -9,8 +9,13 @@ plugins {
     id("maven-publish")
     id("com.teamresourceful.resourcefulgradle") version "0.0.+"
     id("dev.architectury.loom") version "1.2-SNAPSHOT" apply false
-    id("architectury-plugin") version "3.4-SNAPSHOT" apply false
+    id("architectury-plugin") version "3.4-SNAPSHOT"
     id("com.github.johnrengelman.shadow") version "7.1.2" apply false
+}
+
+architectury {
+    val minecraftVersion: String by project
+    minecraft = minecraftVersion
 }
 
 subprojects {
