@@ -18,6 +18,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -26,9 +27,11 @@ public class ConnectedBlockModel implements AthenaBlockModel {
     public static final AthenaModelFactory FACTORY = new Factory();
 
     private final ConnectedTextureMap materials;
+    private final BiPredicate<BlockState, BlockState> connectTo;
 
-    public ConnectedBlockModel(ConnectedTextureMap materials) {
+    public ConnectedBlockModel(ConnectedTextureMap materials, BiPredicate<BlockState, BlockState> connectTo) {
         this.materials = materials;
+        this.connectTo = connectTo;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class ConnectedBlockModel implements AthenaBlockModel {
             return List.of();
         }
 
-        final CtmState state = CtmState.from(level, pos, direction, other -> other == blockState);
+        final CtmState state = CtmState.from(level, pos, direction, other -> connectTo.test(blockState, other));
 
         if (state.allTrue()) {
             return List.of(AthenaQuad.withSprite(materials.getTexture(direction, 1)));
@@ -69,7 +72,8 @@ public class ConnectedBlockModel implements AthenaBlockModel {
                     "have directional textures for each direction or to have some directions and a default textures object.");
             }
             final var materialsFinal = materials;
-            return () -> new ConnectedBlockModel(materialsFinal);
+            BiPredicate<BlockState, BlockState> conditions = CtmUtils.parseCondition(json);
+            return () -> new ConnectedBlockModel(materialsFinal, conditions);
         }
 
         private static ConnectedTextureMap parseMaterials(JsonObject json) {

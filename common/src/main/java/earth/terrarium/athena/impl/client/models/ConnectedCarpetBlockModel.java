@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -30,9 +31,11 @@ public class ConnectedCarpetBlockModel implements AthenaBlockModel {
     private static final List<AthenaQuad> CENTER_BOTTOM = List.of(new AthenaQuad(1, 0, 1, 1, 0, Rotation.NONE, 0.0625f));
 
     private final Int2ObjectMap<Material> materials;
+    private final BiPredicate<BlockState, BlockState> connectTo;
 
-    public ConnectedCarpetBlockModel(Int2ObjectMap<Material> materials) {
+    public ConnectedCarpetBlockModel(Int2ObjectMap<Material> materials, BiPredicate<BlockState, BlockState> connectTo) {
         this.materials = materials;
+        this.connectTo = connectTo;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class ConnectedCarpetBlockModel implements AthenaBlockModel {
             return SIDE;
         }
 
-        final CtmState state = CtmState.from(level, pos, direction, s -> s == blockState);
+        final CtmState state = CtmState.from(level, pos, direction, other -> connectTo.test(blockState, other));
 
         if (state.allTrue()) {
             return direction == Direction.UP ? CENTER_TOP : CENTER_BOTTOM;
@@ -71,7 +74,8 @@ public class ConnectedCarpetBlockModel implements AthenaBlockModel {
         @Override
         public Supplier<AthenaBlockModel> create(JsonObject json) {
             final var materials = CtmUtils.parseCtmMaterials(GsonHelper.getAsJsonObject(json, "ctm_textures"));
-            return () -> new ConnectedCarpetBlockModel(materials);
+            BiPredicate<BlockState, BlockState> conditions = CtmUtils.parseCondition(json);
+            return () -> new ConnectedCarpetBlockModel(materials, conditions);
         }
     }
 }
