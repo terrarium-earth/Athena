@@ -80,12 +80,9 @@ public final class CtmUtils {
         if (!json.has("type"))
             return (selfState, otherState) -> false;
         JsonElement type = json.get("type");
-        if (!type.isJsonPrimitive())
+        if (!GsonHelper.isStringValue(type))
             return (selfState, otherState) -> false;
-        JsonPrimitive typePrimitive = type.getAsJsonPrimitive();
-        if (!typePrimitive.isString())
-            return (selfState, otherState) -> false;
-        return switch (typePrimitive.getAsString()) {
+        return switch (type.getAsJsonPrimitive().getAsString()) {
             case "not" -> parseNotCondition(json);
             case "and" -> parseAndCondition(json);
             case "or" -> parseOrCondition(json);
@@ -152,17 +149,18 @@ public final class CtmUtils {
 
     private static BiPredicate<BlockState, BlockState> parseStateCondition(JsonObject json) {
         JsonElement jsonBlock = json.get("block");
-        if (!(jsonBlock instanceof JsonPrimitive primitive) || !primitive.isString()) {
+        if (GsonHelper.isStringValue(jsonBlock)) {
             return (selfState, otherState) -> false;
         }
         @Nullable
         ResourceLocation blockRL = ResourceLocation.tryParse(jsonBlock.getAsString());
         if (blockRL == null)
             return (selfState, otherState) -> false;
-        Block block = BuiltInRegistries.BLOCK.get(blockRL);
+        Optional<Block> blockOpt = BuiltInRegistries.BLOCK.getOptional(blockRL);
         //don't connect to defaulted fallback (air)
-        if (!BuiltInRegistries.BLOCK.getKey(block).equals(blockRL))
+        if (blockOpt.isEmpty())
             return (selfState, otherState) -> false;
+        Block block = blockOpt.get();
         if (!json.has("properties")) {
             return (selfState, otherState) -> otherState.is(block);
         }
@@ -175,12 +173,9 @@ public final class CtmUtils {
             Property<?> property = block.getStateDefinition().getProperty(jsonEntry.getKey());
             if (property == null)
                 continue;
-            if (!jsonEntry.getValue().isJsonPrimitive())
+            if (!GsonHelper.isStringValue(jsonEntry.getValue()))
                 continue;
-            JsonPrimitive propertyValueJson = jsonEntry.getValue().getAsJsonPrimitive();
-            if (!propertyValueJson.isString())
-                continue;
-            property.getValue(propertyValueJson.getAsString()).ifPresent(value -> properties.put(property, value));
+            property.getValue(jsonEntry.getValue().getAsString()).ifPresent(value -> properties.put(property, value));
         }
         return (selfState, otherState) -> {
             if (!otherState.is(block))
@@ -194,7 +189,8 @@ public final class CtmUtils {
     }
 
     private static BiPredicate<BlockState, BlockState> parseTagCondition(JsonObject json) {
-        return (selfState, otherState) -> otherState.is(TagKey.create(Registries.BLOCK, ResourceLocation.tryParse(json.get("tag").getAsString())));
+        TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.tryParse(json.get("tag").getAsString()));
+        return (selfState, otherState) -> otherState.is(tag);
     }
 
     private static BiPredicate<BlockState, BlockState> parseSelfStateCondition(JsonObject json) {
