@@ -3,7 +3,6 @@ package earth.terrarium.athena.api.client.utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -23,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
 public final class CtmUtils {
@@ -64,75 +64,53 @@ public final class CtmUtils {
         throw new AssertionError();
     }
 
-
+    private static final BiPredicate<BlockState, BlockState> FALSE = (selfState, otherState) -> false;
+    private static final BiPredicate<BlockState, BlockState> STATE = (selfState, otherState) -> selfState == otherState;
+    private static final BiPredicate<BlockState, BlockState> IS = (selfState, otherState) -> selfState.is(otherState.getBlock());
 
     public static BiPredicate<BlockState, BlockState> parseCondition(JsonObject json) {
         if (!json.has("connect_to")) {
-            return (selfState, otherState) -> selfState == otherState;
+            return STATE;
         }
-        JsonElement connectTo = json.get("connect_to");
-        if (connectTo instanceof JsonObject jsonObject) {
+        if (json.get("connect_to") instanceof JsonObject jsonObject) {
             return parseConditionInternal(jsonObject);
         }
-        return (selfState, otherState) -> false;
+        return FALSE;
     }
+
     private static BiPredicate<BlockState, BlockState> parseConditionInternal(JsonObject json) {
-        if (!json.has("type"))
-            return (selfState, otherState) -> false;
-        JsonElement type = json.get("type");
-        if (!GsonHelper.isStringValue(type))
-            return (selfState, otherState) -> false;
-        return switch (type.getAsJsonPrimitive().getAsString()) {
+        return switch (GsonHelper.getAsString(json, "type", "")) {
             case "not" -> parseNotCondition(json);
-            case "and" -> parseAndCondition(json);
-            case "or" -> parseOrCondition(json);
+            case "and" -> parseListCondition(json, BiPredicate::and);
+            case "or" -> parseListCondition(json, BiPredicate::or);
             case "xor" -> parseXorCondition(json);
             case "state" -> parseStateCondition(json);
             case "tag" -> parseTagCondition(json);
-            case "sameBlock" -> parseSelfBlockCondition(json);
-            case "sameState" -> parseSelfStateCondition(json);
-            default -> (selfState, otherState) -> false;
+            case "sameBlock" -> IS;
+            case "sameState" -> STATE;
+            default -> FALSE;
         };
     }
 
-    private static BiPredicate<BlockState, BlockState> parseAndCondition(JsonObject json) {
-        List<JsonObject> conditionsJson = unwrapConditions(json);
-        if (conditionsJson == null)
-            return (selfState, otherState) -> false;
-        List<BiPredicate<BlockState, BlockState>> conditions = conditionsJson.stream().map(CtmUtils::parseConditionInternal).toList();
-        if (conditions.isEmpty())
-            return (selfState, otherState) -> false;
-        if (conditions.size() == 1)
-            return conditions.get(0);
-        return conditions.stream().reduce((selfState, otherState) -> true, BiPredicate::and);
-    }
-    private static BiPredicate<BlockState, BlockState> parseOrCondition(JsonObject json) {
-        List<JsonObject> conditionsJson = unwrapConditions(json);
-        if (conditionsJson == null)
-            return (selfState, otherState) -> false;
-        List<BiPredicate<BlockState, BlockState>> conditions = conditionsJson.stream().map(CtmUtils::parseConditionInternal).toList();
-        if (conditions.isEmpty())
-            return (selfState, otherState) -> false;
-        if (conditions.size() == 1)
-            return conditions.get(0);
-        return conditions.stream().reduce((selfState, otherState) -> false, BiPredicate::or);
+    private static BiPredicate<BlockState, BlockState> parseListCondition(JsonObject json, BinaryOperator<BiPredicate<BlockState, BlockState>> mapper) {
+        List<BiPredicate<BlockState, BlockState>> conditions = unwrapConditions(json).stream()
+                .map(CtmUtils::parseConditionInternal).toList();
+        if (conditions.isEmpty()) return FALSE;
+        if (conditions.size() == 1) return conditions.get(0);
+        return conditions.stream().reduce(mapper).orElseThrow();
     }
 
     private static BiPredicate<BlockState, BlockState> parseXorCondition(JsonObject json) {
         List<JsonObject> conditionsJson = unwrapConditions(json);
-        if (conditionsJson == null || conditionsJson.size() != 2)
-            return (selfState, otherState) -> false;
-        List<BiPredicate<BlockState, BlockState>> conditions = conditionsJson.stream().map(CtmUtils::parseConditionInternal).toList();
-        return (selfState, otherState) -> conditions.get(0).test(selfState, otherState) ^ conditions.get(1).test(selfState, otherState);
+        if (conditionsJson.size() != 2) return FALSE;
+        BiPredicate<BlockState, BlockState> first = parseConditionInternal(conditionsJson.get(0));
+        BiPredicate<BlockState, BlockState> second = parseConditionInternal(conditionsJson.get(1));
+        return (selfState, otherState) -> first.test(selfState, otherState) ^ second.test(selfState, otherState);
     }
 
-    @Nullable
     private static List<JsonObject> unwrapConditions(JsonObject json) {
-        if (!json.has("conditions"))
-            return null;
-        JsonElement conditions = json.get("conditions");
         List<JsonObject> conditionList = new ArrayList<>();
-        if (conditions instanceof JsonArray array) {
+        if (json.get("conditions") instanceof JsonArray array) {
             for (JsonElement jsonElement : array) {
                 if (jsonElement instanceof JsonObject jsonObject)
                     conditionList.add(jsonObject);
@@ -141,32 +119,24 @@ public final class CtmUtils {
         return conditionList;
     }
     private static BiPredicate<BlockState, BlockState> parseNotCondition(JsonObject json) {
-        JsonElement condition = json.get("condition");
-        if (condition instanceof JsonObject jsonObject)
+        if (json.get("condition") instanceof JsonObject jsonObject) {
             return parseConditionInternal(jsonObject).negate();
+        }
         return (selfState, otherState) -> false;
     }
 
     private static BiPredicate<BlockState, BlockState> parseStateCondition(JsonObject json) {
-        JsonElement jsonBlock = json.get("block");
-        if (GsonHelper.isStringValue(jsonBlock)) {
-            return (selfState, otherState) -> false;
-        }
-        @Nullable
-        ResourceLocation blockRL = ResourceLocation.tryParse(jsonBlock.getAsString());
-        if (blockRL == null)
-            return (selfState, otherState) -> false;
-        Optional<Block> blockOpt = BuiltInRegistries.BLOCK.getOptional(blockRL);
+        Optional<Block> blockOpt = Optional.ofNullable(GsonHelper.getAsString(json, "block", null))
+                .map(ResourceLocation::tryParse)
+                .flatMap(BuiltInRegistries.BLOCK::getOptional);
         //don't connect to defaulted fallback (air)
-        if (blockOpt.isEmpty())
-            return (selfState, otherState) -> false;
+        if (blockOpt.isEmpty()) return FALSE;
         Block block = blockOpt.get();
         if (!json.has("properties")) {
             return (selfState, otherState) -> otherState.is(block);
         }
         JsonElement propertiesElem = json.get("properties");
-        if (!propertiesElem.isJsonObject())
-            return (selfState, otherState) -> false;
+        if (!propertiesElem.isJsonObject()) return FALSE;
         Map<Property<?>, Object> properties = new HashMap<>();
         for (var jsonEntry : propertiesElem.getAsJsonObject().asMap().entrySet()) {
             @Nullable
@@ -191,13 +161,5 @@ public final class CtmUtils {
     private static BiPredicate<BlockState, BlockState> parseTagCondition(JsonObject json) {
         TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.tryParse(json.get("tag").getAsString()));
         return (selfState, otherState) -> otherState.is(tag);
-    }
-
-    private static BiPredicate<BlockState, BlockState> parseSelfStateCondition(JsonObject json) {
-        return (selfState, otherState) -> selfState == otherState;
-    }
-
-    private static BiPredicate<BlockState, BlockState> parseSelfBlockCondition(JsonObject json) {
-        return (selfState, otherState) -> selfState.getBlock() == otherState.getBlock();
     }
 }
