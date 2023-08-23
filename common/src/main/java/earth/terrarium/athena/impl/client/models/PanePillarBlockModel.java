@@ -47,8 +47,8 @@ public class PanePillarBlockModel implements AthenaBlockModel {
         final var rightState = AthenaUtils.getFromDir(state, direction.getCounterClockWise());
         final var leftState = AthenaUtils.getFromDir(state, direction.getClockWise());
 
-        final var upBlockState = level.getAppearance(pos.above(), direction);
-        final var downBlockState = level.getAppearance(pos.below(), direction);
+        final var upBlockState = level.getAppearance(pos.above(), direction, state, pos);
+        final var downBlockState = level.getAppearance(pos.below(), direction, state, pos);
 
         final var upState = upBlockState.is(state.getBlock()) && AthenaUtils.getFromDir(upBlockState, direction.getCounterClockWise()) && AthenaUtils.getFromDir(upBlockState, direction.getClockWise());
         final var belowState = downBlockState.is(state.getBlock()) && AthenaUtils.getFromDir(downBlockState, direction.getCounterClockWise()) && AthenaUtils.getFromDir(downBlockState, direction.getClockWise());

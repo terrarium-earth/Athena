@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -161,5 +162,17 @@ public final class CtmUtils {
     private static BiPredicate<BlockState, BlockState> parseTagCondition(JsonObject json) {
         TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.tryParse(json.get("tag").getAsString()));
         return (selfState, otherState) -> otherState.is(tag);
+    }
+
+    public static CtmState.ConnectionCheck check(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction, BiPredicate<BlockState, BlockState> predicate) {
+        return (fromPos, fromState, fromAppearance) -> predicate.test(level.getAppearance(state, pos, direction, fromState, fromPos), fromAppearance);
+    }
+
+    public static boolean checkRelative(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
+        BlockPos relativePos = pos.relative(direction);
+        BlockState otherState = level.getBlockState(relativePos);
+        BlockState stateAppearance = level.getAppearance(state, pos, direction, otherState, relativePos);
+        BlockState otherStateAppearance = level.getAppearance(otherState, relativePos, direction.getOpposite(), state, pos);
+        return !stateAppearance.isAir() && otherStateAppearance.is(stateAppearance.getBlock());
     }
 }

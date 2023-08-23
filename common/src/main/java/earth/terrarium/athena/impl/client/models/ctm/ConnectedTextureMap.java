@@ -38,6 +38,7 @@ public class ConnectedTextureMap {
         for (Direction value : Direction.values()) {
             Provider provider = materials.get(value);
             if (provider == null) {
+                textureMap.put(value, new Int2IntArrayMap());
                 continue;
             }
             Int2IntMap map = new Int2IntArrayMap();

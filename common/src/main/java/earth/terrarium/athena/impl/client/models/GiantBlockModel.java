@@ -15,7 +15,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -59,6 +61,15 @@ public class GiantBlockModel implements AthenaBlockModel {
                 yield List.of(AthenaQuad.withSprite(1 + (x % width) + (z % height) * height));
             }
         };
+    }
+
+    @Override
+    public Map<Direction, List<AthenaQuad>> getDefaultQuads(Direction direction) {
+        Map<Direction, List<AthenaQuad>> quads = new HashMap<>(Direction.values().length);
+        for (Direction dir : Direction.values()) {
+            quads.put(dir, List.of(AthenaQuad.withSprite(0)));
+        }
+        return quads;
     }
 
     @Override

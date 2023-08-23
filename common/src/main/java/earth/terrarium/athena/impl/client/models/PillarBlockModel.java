@@ -18,7 +18,9 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -36,19 +38,21 @@ public class PillarBlockModel implements AthenaBlockModel {
 
     @Override
     public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
-        if (!state.hasProperty(BlockStateProperties.AXIS)) return List.of();
+        if (!state.hasProperty(BlockStateProperties.AXIS)) return List.of(AthenaQuad.withRotation(4, Rotation.NONE));
 
         if (state.getValue(BlockStateProperties.AXIS) == direction.getAxis()) {
             return CAP;
         }
+
+        final BlockState appearance = level.getAppearance(pos, direction, state, pos);
 
         final Direction.Axis axis = state.getValue(BlockStateProperties.AXIS);
 
         final Rotation rotate = CtmUtils.getPillarRotation(axis, direction);
 
         final var minMax = AthenaUtils.getMinMax(axis);
-        final boolean min = level.getAppearance(pos.relative(minMax.getFirst()), direction) == state;
-        final boolean max = level.getAppearance(pos.relative(minMax.getSecond()), direction) == state;
+        final boolean min = level.getAppearance(pos.relative(minMax.getFirst()), direction, appearance, pos) == appearance;
+        final boolean max = level.getAppearance(pos.relative(minMax.getSecond()), direction, appearance, pos) == appearance;
 
         if (min && max) {
             return List.of(AthenaQuad.withRotation(2, rotate));
@@ -58,6 +62,15 @@ public class PillarBlockModel implements AthenaBlockModel {
             return List.of(AthenaQuad.withRotation(1, rotate));
         }
         return List.of(AthenaQuad.withRotation(4, rotate));
+    }
+
+    @Override
+    public Map<Direction, List<AthenaQuad>> getDefaultQuads(Direction direction) {
+        Map<Direction, List<AthenaQuad>> quads = new HashMap<>(Direction.values().length);
+        for (Direction dir : Direction.values()) {
+            quads.put(dir, List.of(AthenaQuad.withRotation(4, Rotation.NONE)));
+        }
+        return quads;
     }
 
     @Override

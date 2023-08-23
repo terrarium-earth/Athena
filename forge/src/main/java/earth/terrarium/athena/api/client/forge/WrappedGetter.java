@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraftforge.client.model.data.ModelDataManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,8 +57,34 @@ public record WrappedGetter(BlockAndTintGetter getter) implements AppearanceAndT
     }
 
     @Override
+    public @Nullable BlockEntity getExistingBlockEntity(BlockPos pos) {
+        return getter.getExistingBlockEntity(pos);
+    }
+
+    @Override
+    @SuppressWarnings("UnstableApiUsage")
+    public @Nullable ModelDataManager getModelDataManager() {
+        return getter.getModelDataManager();
+    }
+
+    @Override
+    public BlockState getAppearance(BlockState state, BlockPos pos, Direction direction, BlockState fromState, BlockPos fromPos) {
+        return state.getAppearance(this, pos, direction, fromState, fromPos);
+    }
+
+    @Override
     public BlockState getAppearance(BlockPos pos, Direction direction) {
         BlockState state = getter.getBlockState(pos);
         return state.getAppearance(this, pos, direction, null, null);
+    }
+
+    public BlockState getAppearance(BlockPos pos, Direction direction, BlockState fromState, BlockPos fromPos) {
+        return query(pos, direction, fromState, fromPos).appearance();
+    }
+
+    @Override
+    public Query query(BlockPos pos, Direction direction, BlockState fromState, BlockPos fromPos) {
+        BlockState state = getter.getBlockState(pos);
+        return new Query(state, state.getAppearance(this, pos, direction, fromState, fromPos));
     }
 }

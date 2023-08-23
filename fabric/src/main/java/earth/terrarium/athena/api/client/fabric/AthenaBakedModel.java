@@ -6,15 +6,18 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -57,7 +60,7 @@ public class AthenaBakedModel implements BakedModel, FabricBakedModel {
             WrappedGetter getter = new WrappedGetter(level);
             for (Direction value : DIRECTIONS) {
                 for (var sprite : model.getQuads(getter, state, pos, value)) {
-                    TextureAtlasSprite texture = textures.get(sprite.sprite());
+                    TextureAtlasSprite texture = this.textures.get(sprite.sprite());
                     if (texture == null) {
                         continue;
                     }
@@ -106,7 +109,10 @@ public class AthenaBakedModel implements BakedModel, FabricBakedModel {
 
     @Override
     public @NotNull TextureAtlasSprite getParticleIcon() {
-        return this.textures.get(0);
+        if (this.textures.containsKey(0)) {
+            return this.textures.get(0);
+        }
+        return Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(MissingTextureAtlasSprite.getLocation());
     }
 
     @Override

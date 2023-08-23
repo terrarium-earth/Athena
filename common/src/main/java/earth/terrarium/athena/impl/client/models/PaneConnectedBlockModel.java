@@ -48,7 +48,7 @@ public class PaneConnectedBlockModel implements AthenaBlockModel {
         final var rightState = AthenaUtils.getFromDir(state, direction.getCounterClockWise());
         final var leftState = AthenaUtils.getFromDir(state, direction.getClockWise());
 
-        final CtmState ctmState = CtmState.from(level, pos, direction, other -> isConnected(other, state, direction));
+        final CtmState ctmState = CtmState.from(level, state, pos, direction, (ignoredPos, other, ignoredApp) -> isConnected(other, state, direction));
 
         if (ctmState.allTrue()) {
             return CENTER;

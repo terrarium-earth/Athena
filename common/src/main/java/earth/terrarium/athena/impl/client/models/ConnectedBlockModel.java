@@ -18,6 +18,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,22 +36,36 @@ public class ConnectedBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState blockState, BlockPos pos, Direction direction) {
-        if (level.getBlockState(pos.relative(direction)).is(blockState.getBlock())) {
+    public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
+        if (CtmUtils.checkRelative(level, state, pos, direction)) {
             return List.of();
         }
 
-        final CtmState state = CtmState.from(level, pos, direction, other -> connectTo.test(blockState, other));
+        final CtmState ctm = CtmState.from(level, state, pos, direction, CtmUtils.check(level, state, pos, direction, connectTo));
 
-        if (state.allTrue()) {
+        if (ctm.allTrue()) {
             return List.of(AthenaQuad.withSprite(materials.getTexture(direction, 1)));
         }
 
         return List.of(
-                AthenaQuad.withState(materials, direction, state.up(), state.left(), state.upLeft(), 0, 0.5f, 1f, 0.5f),
-                AthenaQuad.withState(materials, direction, state.up(), state.right(), state.upRight(), 0.5f, 1f, 1f, 0.5f),
-                AthenaQuad.withState(materials, direction, state.down(), state.left(), state.downLeft(), 0, 0.5f, 0.5f, 0f),
-                AthenaQuad.withState(materials, direction, state.down(), state.right(), state.downRight(), 0.5f, 1f, 0.5f, 0f)
+                AthenaQuad.withState(materials, direction, ctm.up(), ctm.left(), ctm.upLeft(), 0, 0.5f, 1f, 0.5f),
+                AthenaQuad.withState(materials, direction, ctm.up(), ctm.right(), ctm.upRight(), 0.5f, 1f, 1f, 0.5f),
+                AthenaQuad.withState(materials, direction, ctm.down(), ctm.left(), ctm.downLeft(), 0, 0.5f, 0.5f, 0f),
+                AthenaQuad.withState(materials, direction, ctm.down(), ctm.right(), ctm.downRight(), 0.5f, 1f, 0.5f, 0f)
+        );
+    }
+
+    @Override
+    public Map<Direction, List<AthenaQuad>> getDefaultQuads(Direction direction) {
+        if (direction == null) return Map.of();
+        return Map.of(
+            direction,
+            List.of(
+                    AthenaQuad.withState(materials, direction, false, false, false, 0, 0.5f, 1f, 0.5f),
+                    AthenaQuad.withState(materials, direction, false, false, false, 0.5f, 1f, 1f, 0.5f),
+                    AthenaQuad.withState(materials, direction, false, false, false, 0, 0.5f, 0.5f, 0f),
+                    AthenaQuad.withState(materials, direction, false, false, false, 0.5f, 1f, 0.5f, 0f)
+            )
         );
     }
 
@@ -69,7 +84,7 @@ public class ConnectedBlockModel implements AthenaBlockModel {
             }
             if (materials == null) {
                 throw new JsonSyntaxException("Expected either ctm_textures to have 5 entries for all textures or " +
-                    "have directional textures for each direction or to have some directions and a default textures object.");
+                        "have directional textures for each direction or to have some directions and a default textures object.");
             }
             final var materialsFinal = materials;
             BiPredicate<BlockState, BlockState> conditions = CtmUtils.parseCondition(json);
@@ -78,7 +93,7 @@ public class ConnectedBlockModel implements AthenaBlockModel {
 
         private static ConnectedTextureMap parseMaterials(JsonObject json) {
             final ConnectedTextureMap materials = new ConnectedTextureMap();
-            for (var direction : Direction.values()) {
+            for (Direction direction : Direction.values()) {
                 if (GsonHelper.isStringValue(json, direction.getSerializedName())) {
                     materials.put(direction, CtmUtils.blockMat(GsonHelper.getAsString(json, direction.getSerializedName())));
                     continue;

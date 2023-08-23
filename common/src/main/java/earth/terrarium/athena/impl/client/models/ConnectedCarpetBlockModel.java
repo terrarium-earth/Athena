@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -44,7 +45,7 @@ public class ConnectedCarpetBlockModel implements AthenaBlockModel {
             return SIDE;
         }
 
-        final CtmState state = CtmState.from(level, pos, direction, other -> connectTo.test(blockState, other));
+        final CtmState state = CtmState.from(level, blockState, pos, direction, CtmUtils.check(level, blockState, pos, direction, connectTo));
 
         if (state.allTrue()) {
             return direction == Direction.UP ? CENTER_TOP : CENTER_BOTTOM;
@@ -58,6 +59,18 @@ public class ConnectedCarpetBlockModel implements AthenaBlockModel {
                 AthenaQuad.withState(state.down(), state.left(), state.downLeft(), 0, 0.5f, 0.5f, 0f, depth),
                 AthenaQuad.withState(state.down(), state.right(), state.downRight(), 0.5f, 1f, 0.5f, 0f, depth)
         );
+    }
+
+    @Override
+    public Map<Direction, List<AthenaQuad>> getDefaultQuads(Direction direction) {
+        if (direction == null) return Map.of();
+        final float depth = direction == Direction.UP ? 0.9375f : 0.0625f;
+        return Map.of(direction, List.of(
+                AthenaQuad.withState(false, false, false, 0, 0.5f, 1f, 0.5f, depth),
+                AthenaQuad.withState(false, false, false, 0.5f, 1f, 1f, 0.5f, depth),
+                AthenaQuad.withState(false, false, false, 0, 0.5f, 0.5f, 0f, depth),
+                AthenaQuad.withState(false, false, false, 0.5f, 1f, 0.5f, 0f, depth)
+        ));
     }
 
     @Override
