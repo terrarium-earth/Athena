@@ -1,4 +1,4 @@
-# 3.0.1
+# 3.1.0
 
-Add support for "connect_to" on full and carpet ctm states
-Support appearance api
+Fix crash with AE2 cable covers
+Improved support for appearance API should now work better for mods such as Framed Blocks
