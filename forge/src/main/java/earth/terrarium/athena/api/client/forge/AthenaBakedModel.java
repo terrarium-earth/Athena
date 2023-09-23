@@ -95,7 +95,7 @@ public class AthenaBakedModel implements IDynamicBakedModel {
 
     @Override
     public boolean useAmbientOcclusion() {
-        return false;
+        return true;
     }
 
     @Override
@@ -105,7 +105,7 @@ public class AthenaBakedModel implements IDynamicBakedModel {
 
     @Override
     public boolean usesBlockLight() {
-        return false;
+        return true;
     }
 
     @Override
