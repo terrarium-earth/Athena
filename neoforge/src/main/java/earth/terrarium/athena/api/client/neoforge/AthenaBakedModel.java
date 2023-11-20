@@ -1,4 +1,4 @@
-package earth.terrarium.athena.api.client.forge;
+package earth.terrarium.athena.api.client.neoforge;
 
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
@@ -18,9 +18,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.client.model.IDynamicBakedModel;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,8 +54,7 @@ public class AthenaBakedModel implements IDynamicBakedModel {
                     this.model.getDefaultQuads(direction);
             values.forEach((dir, quadList) -> quads.addAll(bakeQuads(quadList, dir)));
         }catch (Exception e) {
-            AthenaUtils.LOGGER.error("Error occurred while getting quads of Athena block model");
-            e.printStackTrace();
+            AthenaUtils.LOGGER.error("Error occurred while getting quads of Athena block model", e);
             throw e; //We do this because Mojang tends to capture and do nothing with the error messages print error type.
         }
         return quads;

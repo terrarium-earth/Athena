@@ -10,7 +10,7 @@
   "contributors": [
   ],
   "contact": {
-    "website": "https://www.curseforge.com/minecraft/mc-mods/athena",
+    "website": "https://modrinth.com/mod/athena-ctm",
     "repo": "https://github.com/terrarium-earth/athena",
     "issues": "https://github.com/terrarium-earth/athena/issues"
   },
@@ -34,6 +34,6 @@
   },
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.20"
+    "minecraft": ">=1.20.2"
   }
 }

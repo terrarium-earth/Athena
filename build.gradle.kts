@@ -8,7 +8,7 @@ plugins {
     java
     id("maven-publish")
     id("com.teamresourceful.resourcefulgradle") version "0.0.+"
-    id("dev.architectury.loom") version "1.2-SNAPSHOT" apply false
+    id("dev.architectury.loom") version "1.4-SNAPSHOT" apply false
     id("architectury-plugin") version "3.4-SNAPSHOT"
     id("com.github.johnrengelman.shadow") version "7.1.2" apply false
 }
@@ -40,12 +40,13 @@ subprojects {
     repositories {
         maven(url = "https://maven.architectury.dev/")
         maven(url = "https://maven.minecraftforge.net/")
+        maven(url = "https://maven.neoforged.net/releases/")
         maven(url = "https://maven.msrandom.net/repository/root")
         maven(url = "https://maven.resourcefulbees.com/repository/maven-public/")
     }
 
     dependencies {
-        "minecraft"("::${minecraftVersion}")
+        "minecraft"("::$minecraftVersion")
         "mappings"(project.the<LoomGradleExtensionAPI>().officialMojangMappings())
     }
 
@@ -59,6 +60,13 @@ subprojects {
 
     tasks.named<RemapJarTask>("remapJar") {
         archiveClassifier.set(null as String?)
+    }
+
+    tasks.processResources {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        filesMatching(listOf("META-INF/mods.toml", "fabric.mod.json")) {
+            expand("version" to project.version)
+        }
     }
 
     if (!isCommon) {
@@ -128,6 +136,7 @@ resourcefulGradle {
             val changelog: String = file("changelog.md").readText(Charsets.UTF_8)
             val fabricLink: String? = System.getenv("FABRIC_RELEASE_URL")
             val forgeLink: String? = System.getenv("FORGE_RELEASE_URL")
+            val neoforgeLink: String? = System.getenv("NEOFORGE_RELEASE_URL")
 
             source.set(file("templates/embed.json.template"))
             injectedValues.set(mapOf(
@@ -136,6 +145,7 @@ resourcefulGradle {
                     "changelog" to StringEscapeUtils.escapeJava(changelog),
                     "fabric_link" to fabricLink,
                     "forge_link" to forgeLink,
+                    "neoforge_link" to neoforgeLink,
             ))
         }
     }

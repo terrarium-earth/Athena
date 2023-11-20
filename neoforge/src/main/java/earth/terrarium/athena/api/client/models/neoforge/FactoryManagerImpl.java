@@ -1,8 +1,8 @@
-package earth.terrarium.athena.api.client.models.forge;
+package earth.terrarium.athena.api.client.models.neoforge;
 
-import earth.terrarium.athena.api.client.forge.AthenaUnbakedModel;
-import earth.terrarium.athena.api.client.utils.AthenaUnbakedModelLoader;
 import earth.terrarium.athena.api.client.models.AthenaModelFactory;
+import earth.terrarium.athena.api.client.neoforge.AthenaUnbakedModel;
+import earth.terrarium.athena.api.client.utils.AthenaUnbakedModelLoader;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;

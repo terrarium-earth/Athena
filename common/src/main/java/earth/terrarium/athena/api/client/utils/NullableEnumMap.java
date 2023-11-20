@@ -1,4 +1,4 @@
-package earth.terrarium.athena.api.client.utils.forge;
+package earth.terrarium.athena.api.client.utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,7 +8,7 @@ import java.util.*;
 
 public class NullableEnumMap<K extends Enum<K>, V> implements Map<K, V> {
 
-    public final MapEntry empty = new MapEntry(null);
+    private final MapEntry empty = new MapEntry(null);
 
     private final Class<K> enumClass;
     private final K[] keys;

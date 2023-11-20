@@ -1,1 +1,2 @@
-- Fixed lighting issues
+- 1.20.2 Update
+- Added support for NeoForge
