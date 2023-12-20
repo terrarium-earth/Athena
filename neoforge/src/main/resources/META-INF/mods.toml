@@ -20,14 +20,14 @@ issueTrackerURL = "https://github.com/terrarium-earth/athena/issues"
 
 [[dependencies.athena]]
     modId = "neoforge"
-    mandatory = true
-    versionRange = "[20.2.59-beta,)"
+    type="required"
+    versionRange = "[20.4.46-beta,)"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.athena]]
     modId = "minecraft"
-    mandatory = true
-    versionRange = "[1.20.2,)"
+    type="required"
+    versionRange = "[1.20.4,)"
     ordering = "NONE"
     side = "BOTH"

@@ -1,2 +1,2 @@
-- 1.20.2 Update
-- Added support for NeoForge
+- 1.20.4 Update
+- Fixed mods.toml for NeoForge
