@@ -1,2 +1,1 @@
-- 1.20.4 Update
-- Fixed mods.toml for NeoForge
+- Fix map entries not having a hashcode or a equals method
