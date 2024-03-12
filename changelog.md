@@ -1,1 +1,1 @@
-- Fix map entries not having a hashcode or a equals method
+- Fixed default quads on fabric (Technici4n)
