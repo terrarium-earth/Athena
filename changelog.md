@@ -1,1 +1,1 @@
-- Fixed lighting issues
+- Fixed default quads on fabric (Technici4n)
