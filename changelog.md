@@ -1,1 +1,1 @@
-- Fix issues where pillars weren't using appearances correctly causing issues with mods like Framed Blocks, thanks to XFactHD for the fixes.
+- Incorrect model state being used on neoforge.

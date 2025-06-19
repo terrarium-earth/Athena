@@ -1,14 +1,12 @@
 package earth.terrarium.athena.api.client.neoforge;
 
-import com.mojang.math.Transformation;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.client.model.SimpleModelState;
 import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
@@ -19,8 +17,6 @@ import java.util.Map;
 @ApiStatus.Internal
 public class ForgeAthenaUtils {
 
-    public static final ModelState LOCKED_STATE = new SimpleModelState(Transformation.identity(), true);
-
     public static List<BakedQuad> bakeQuad(AthenaQuad quad, Direction direction, TextureAtlasSprite sprite) {
         final Vector3f start = getStartPos(quad, direction);
         final Vector3f end = getEndPos(quad, direction);
@@ -29,7 +25,7 @@ public class ForgeAthenaUtils {
         return UnbakedGeometryHelper.bakeElements(
                 List.of(element),
                 mat -> sprite,
-                ForgeAthenaUtils.LOCKED_STATE
+                BlockModelRotation.X0_Y0
         );
     }
 

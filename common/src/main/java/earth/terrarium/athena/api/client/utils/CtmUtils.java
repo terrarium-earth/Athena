@@ -3,7 +3,6 @@ package earth.terrarium.athena.api.client.utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -57,12 +56,17 @@ public final class CtmUtils {
         }
     }
 
-    /**
-     * This requires a method because forge has a different implementation.
-     */
-    @ExpectPlatform
     public static Rotation getPillarRotation(Direction.Axis axis, Direction direction) {
-        throw new AssertionError();
+        if (axis == Direction.Axis.X) {
+            return direction.getAxis().isHorizontal() && !AthenaUtils.asBool(direction.getAxisDirection()) ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
+        } else if (axis == Direction.Axis.Z) {
+            if (direction.getAxis().isVertical()) {
+                return AthenaUtils.ternary(direction.getAxisDirection(), Rotation.NONE, Rotation.CLOCKWISE_180);
+            } else {
+                return AthenaUtils.ternary(direction.getAxisDirection(), Rotation.CLOCKWISE_90, Rotation.COUNTERCLOCKWISE_90);
+            }
+        }
+        return Rotation.NONE;
     }
 
     private static final BiPredicate<BlockState, BlockState> FALSE = (selfState, otherState) -> false;
