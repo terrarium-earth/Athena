@@ -44,21 +44,21 @@ public class GiantBlockModel implements AthenaBlockModel {
         return switch (direction.getAxis()) {
             case X -> {
                 if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-                    z = Math.abs(z - width - 1);
+                    z = Math.abs(width - z%width - 1);
                 }
-                yield List.of(AthenaQuad.withSprite(1 + (z % width) + (y % height) * height));
+                yield List.of(AthenaQuad.withSprite(1 + (z % width) + (y % height) * width));
             }
             case Z -> {
                 if (direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-                    x = Math.abs(x - width - 1);
+                    x = Math.abs(width - x%width - 1);
                 }
-                yield List.of(AthenaQuad.withSprite(1 + (x % width) + (y % height) * height));
+                yield List.of(AthenaQuad.withSprite(1 + (x % width) + (y % height) * width));
             }
             default -> {
                 if (direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-                    z = Math.abs(z - width - 1);
+                    z = Math.abs(width - z%width - 1);
                 }
-                yield List.of(AthenaQuad.withSprite(1 + (x % width) + (z % height) * height));
+                yield List.of(AthenaQuad.withSprite(1 + (x % width) + (z % height) * width));
             }
         };
     }
