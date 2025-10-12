@@ -1,19 +1,40 @@
 package earth.terrarium.athena.api.client.neoforge;
 
 import earth.terrarium.athena.api.client.models.AthenaQuad;
+import earth.terrarium.athena.api.client.models.TintProvider;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.core.Direction;
+import net.neoforged.neoforge.client.model.ExtraFaceData;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3f;
 
+@ApiStatus.Internal
 public class AthenaBlockElementFace {
 
-    public static BlockElementFace of(AthenaQuad quad, Direction direction, Vector3f start, Vector3f end) {
+    public static BlockElementFace of(AthenaQuad quad, Direction direction, Vector3f start, Vector3f end, TintProvider tint) {
+        int tintIndex = -1;
+        ExtraFaceData extraData = null;
+
+        switch (tint) {
+            case TintProvider.Index(var index) -> tintIndex = index;
+            case TintProvider.Static(var color) -> extraData = new ExtraFaceData(
+                    color,
+                    ExtraFaceData.DEFAULT.blockLight(),
+                    ExtraFaceData.DEFAULT.skyLight(),
+                    ExtraFaceData.DEFAULT.ambientOcclusion()
+            );
+            case null -> {}
+        }
+
         return new BlockElementFace(
                 quad.cull() ? direction : null,
-                -1,
+                tintIndex,
                 "",
-                new BlockFaceUV(getUVs(start, end, direction), (int)((quad.rotation().ordinal() * 90f) % 360f))
+                new BlockFaceUV(getUVs(start, end, direction), (int)((quad.rotation().ordinal() * 90f) % 360f)),
+                extraData,
+                new MutableObject<>()
         );
     }
 
