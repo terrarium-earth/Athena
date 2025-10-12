@@ -1,6 +1,7 @@
 package earth.terrarium.athena.api.client.neoforge;
 
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
+import earth.terrarium.athena.api.client.models.AthenaModelAttributes;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.AthenaUtils;
 import earth.terrarium.athena.api.client.utils.NullableEnumMap;
@@ -41,11 +42,14 @@ public class AthenaBakedModel implements IDynamicBakedModel {
     private final AthenaBlockModel model;
     private final Int2ObjectMap<TextureAtlasSprite> textures;
     private final ChunkRenderTypeSet renderTypes;
+    private final AthenaModelAttributes attributes;
 
     public AthenaBakedModel(AthenaBlockModel model, Function<Material, TextureAtlasSprite> function) {
         this.model = model;
         this.textures = this.model.getTextures(function);
-        this.renderTypes = Optionull.map(this.model.getRenderType(), ChunkRenderTypeSet::of);
+        this.attributes = model.getAttributes();
+        //noinspection deprecation
+        this.renderTypes = Optionull.map(this.attributes.getLayer() != null ? this.attributes.getLayer() : this.model.getRenderType(), ChunkRenderTypeSet::of);
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -91,7 +95,7 @@ public class AthenaBakedModel implements IDynamicBakedModel {
         for (AthenaQuad quad : quads) {
             TextureAtlasSprite sprite = this.textures.get(quad.sprite());
             if (sprite == null) continue;
-            bakedQuads.addAll(ForgeAthenaUtils.bakeQuad(quad, direction, sprite));
+            bakedQuads.addAll(ForgeAthenaUtils.bakeQuad(quad, direction, sprite, this.attributes.getTint()));
         }
         return bakedQuads;
     }

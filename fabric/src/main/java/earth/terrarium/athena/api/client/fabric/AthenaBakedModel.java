@@ -2,6 +2,7 @@ package earth.terrarium.athena.api.client.fabric;
 
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
+import earth.terrarium.athena.api.client.models.TintProvider;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
@@ -66,6 +67,7 @@ public class AthenaBakedModel implements BakedModel, FabricBakedModel {
     }
 
     private void emitQuads(QuadEmitter emitter, @Nullable Direction side, List<AthenaQuad> quads) {
+        var attributes = this.model.getAttributes();
         for (var sprite : quads) {
             TextureAtlasSprite texture = this.textures.get(sprite.sprite());
             if (texture == null) {
@@ -82,7 +84,13 @@ public class AthenaBakedModel implements BakedModel, FabricBakedModel {
             }
 
             emitter.spriteBake(texture, flag);
-            emitter.color(-1, -1, -1, -1);
+
+            switch (attributes.getTint()) {
+                case TintProvider.Index(var index) -> emitter.colorIndex(index);
+                case TintProvider.Static(var color) -> emitter.color(color, color, color, color);
+                case null -> {}
+            }
+
             emitter.emit();
         }
     }
