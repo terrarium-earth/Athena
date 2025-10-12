@@ -2,6 +2,7 @@ package earth.terrarium.athena.api.client.neoforge;
 
 import com.mojang.math.Transformation;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
+import earth.terrarium.athena.api.client.models.TintProvider;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
@@ -21,10 +22,10 @@ public class ForgeAthenaUtils {
 
     public static final ModelState LOCKED_STATE = new SimpleModelState(Transformation.identity(), true);
 
-    public static List<BakedQuad> bakeQuad(AthenaQuad quad, Direction direction, TextureAtlasSprite sprite) {
+    public static List<BakedQuad> bakeQuad(AthenaQuad quad, Direction direction, TextureAtlasSprite sprite, TintProvider tint) {
         final Vector3f start = getStartPos(quad, direction);
         final Vector3f end = getEndPos(quad, direction);
-        final BlockElementFace face = AthenaBlockElementFace.of(quad, direction, start, end);
+        final BlockElementFace face = AthenaBlockElementFace.of(quad, direction, start, end, tint);
         final BlockElement element = new BlockElement(start, end, Map.of(direction.getOpposite(), face));
         return UnbakedGeometryHelper.bakeElements(
                 List.of(element),
