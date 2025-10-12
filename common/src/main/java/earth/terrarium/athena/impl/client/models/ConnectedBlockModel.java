@@ -3,10 +3,10 @@ package earth.terrarium.athena.impl.client.models;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
+import earth.terrarium.athena.api.client.models.AthenaModelAttributes;
 import earth.terrarium.athena.api.client.models.AthenaModelFactory;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
-import earth.terrarium.athena.api.client.utils.AthenaUtils;
 import earth.terrarium.athena.api.client.utils.CtmState;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
 import earth.terrarium.athena.impl.client.models.ctm.ConnectedTextureMap;
@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -32,16 +33,24 @@ public class ConnectedBlockModel implements AthenaBlockModel {
 
     private final ConnectedTextureMap materials;
     private final BiPredicate<BlockState, BlockState> connectTo;
-    private final ChunkSectionLayer layerType;
+    private final AthenaModelAttributes attributes;
 
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "1.21.11")
     public ConnectedBlockModel(ConnectedTextureMap materials, BiPredicate<BlockState, BlockState> connectTo) {
-        this(materials, connectTo, null);
+        this(materials, connectTo, AthenaModelAttributes.EMPTY);
     }
 
-    public ConnectedBlockModel(ConnectedTextureMap materials, BiPredicate<BlockState, BlockState> connectTo, ChunkSectionLayer layerType) {
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "1.21.11")
+    public ConnectedBlockModel(ConnectedTextureMap materials, BiPredicate<BlockState, BlockState> connectTo, ChunkSectionLayer layer) {
+        this(materials, connectTo, new AthenaModelAttributes(null, layer));
+    }
+
+    public ConnectedBlockModel(ConnectedTextureMap materials, BiPredicate<BlockState, BlockState> connectTo, AthenaModelAttributes attributes) {
         this.materials = materials;
         this.connectTo = connectTo;
-        this.layerType = layerType;
+        this.attributes = attributes;
     }
 
     @Override
@@ -84,8 +93,8 @@ public class ConnectedBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public @Nullable ChunkSectionLayer getLayerType() {
-        return this.layerType;
+    public @Nullable AthenaModelAttributes getAttributes() {
+        return this.attributes;
     }
 
     private static class Factory implements AthenaModelFactory {
@@ -102,7 +111,8 @@ public class ConnectedBlockModel implements AthenaBlockModel {
             }
             final var materialsFinal = materials;
             BiPredicate<BlockState, BlockState> conditions = CtmUtils.parseCondition(json);
-            return () -> new ConnectedBlockModel(materialsFinal, conditions, AthenaUtils.layerFromJson(json));
+            var attributes = AthenaModelAttributes.fromJson(json);
+            return () -> new ConnectedBlockModel(materialsFinal, conditions, attributes);
         }
 
         private static ConnectedTextureMap parseMaterials(JsonObject json) {

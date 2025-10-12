@@ -8,6 +8,7 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -29,8 +30,17 @@ public interface AthenaBlockModel {
 
     Int2ObjectMap<TextureAtlasSprite> getTextures(Function<Material, TextureAtlasSprite> getter);
 
+    /**
+     * @deprecated This method is deprecated and will be removed in a future version. Use {@link #getAttributes()} instead.
+     */
     @Nullable
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "1.21.11")
     default ChunkSectionLayer getLayerType() {
-        return null;
+        return getAttributes().getLayer();
+    }
+
+    default AthenaModelAttributes getAttributes() {
+        return AthenaModelAttributes.EMPTY;
     }
 }

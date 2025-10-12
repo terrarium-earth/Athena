@@ -1,6 +1,7 @@
 package earth.terrarium.athena.api.client.neoforge;
 
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
+import earth.terrarium.athena.api.client.models.AthenaModelAttributes;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.NullableEnumMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -30,12 +31,15 @@ public class AthenaBakedModel implements BlockStateModel {
 
     private final AthenaBlockModel model;
     private final Int2ObjectMap<TextureAtlasSprite> textures;
+    private final AthenaModelAttributes attributes;
     private final BlockModelPart part;
 
     public AthenaBakedModel(AthenaBlockModel model, Function<Material, TextureAtlasSprite> function) {
         this.model = model;
         this.textures = this.model.getTextures(function);
-        this.part = new Part(this.model.getLayerType());
+        this.attributes = model.getAttributes();
+        //noinspection deprecation
+        this.part = new Part(attributes.getLayer() != null ? attributes.getLayer() : this.model.getLayerType());
     }
 
     @Override
@@ -57,7 +61,7 @@ public class AthenaBakedModel implements BlockStateModel {
             nonCullQuads.put(direction, unculledQuads);
         }
         quads.put(null, nonCullQuads);
-        parts.add(new AthenaModelPart(this.part, quads, this.textures));
+        parts.add(new AthenaModelPart(this.part, quads, this.textures, this.attributes.getTint()));
     }
 
     @Override
@@ -86,11 +90,13 @@ public class AthenaBakedModel implements BlockStateModel {
                 quads = new ArrayList<>();
 
                 var defaults = AthenaBakedModel.this.model.getDefaultQuads(arg);
+                var tint = AthenaBakedModel.this.attributes.getTint();
+                var textures = AthenaBakedModel.this.textures;
                 for (var entry : defaults.entrySet()) {
                     for (var quad : entry.getValue()) {
-                        TextureAtlasSprite sprite = AthenaBakedModel.this.textures.get(quad.sprite());
+                        TextureAtlasSprite sprite = textures.get(quad.sprite());
                         if (sprite == null) continue;
-                        quads.addAll(ForgeAthenaUtils.bakeQuad(quad, entry.getKey(), sprite));
+                        quads.addAll(ForgeAthenaUtils.bakeQuad(quad, entry.getKey(), sprite, tint));
                     }
                 }
 
