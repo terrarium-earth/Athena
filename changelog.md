@@ -1,2 +1,1 @@
-- Update to 1.21.5
-- Seemless glass pane option
+- Support for `tint` in models, can either be a tint instead of an object of r,g,b,a for a static color
