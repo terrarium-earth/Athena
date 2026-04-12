@@ -1,1 +1,1 @@
-- Support for `tint` in models, can either be a tint instead of an object of r,g,b,a for a static color
+- Fix incorrect color on fabric 1.21.1

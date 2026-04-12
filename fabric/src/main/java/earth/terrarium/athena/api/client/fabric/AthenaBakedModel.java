@@ -88,7 +88,7 @@ public class AthenaBakedModel implements BakedModel, FabricBakedModel {
             switch (attributes.getTint()) {
                 case TintProvider.Index(var index) -> emitter.colorIndex(index);
                 case TintProvider.Static(var color) -> emitter.color(color, color, color, color);
-                case null -> {}
+                case null, default -> emitter.color(-1, -1, -1, -1);
             }
 
             emitter.emit();
