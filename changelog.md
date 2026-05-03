@@ -1,1 +1,2 @@
-- Fix incorrect color on fabric 1.21.1
+- Fix definitions loading too late requiring resource reload.
+- Fix vertex winding being reversed.
