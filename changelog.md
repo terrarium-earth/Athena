@@ -1,2 +1,1 @@
-- Fix definitions loading too late requiring resource reload.
-- Fix vertex winding being reversed.
+- Improve loading compatibility with other mods that try to inject into the top of the reload listeners

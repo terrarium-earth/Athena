@@ -9,41 +9,33 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.profiling.ProfilerFiller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-public class AthenaResourceLoader extends SimpleJsonResourceReloadListener {
+public class AthenaResourceLoader {
 
-    public static final AthenaResourceLoader INSTANCE = new AthenaResourceLoader();
+    private static Function<ResourceLocation, List<BlockStateModelLoader.LoadedJson>> getter = id -> null;
+    private static final Map<ResourceLocation, JsonElement> data = new ConcurrentHashMap<>();
 
-    private Function<ResourceLocation, List<BlockStateModelLoader.LoadedJson>> getter = id -> null;
-    private final Map<ResourceLocation, JsonElement> data = new HashMap<>();
-
-    public AthenaResourceLoader() {
-        super(new Gson(), "athena");
+    public static void setGetter(Function<ResourceLocation, List<BlockStateModelLoader.LoadedJson>> getter) {
+        AthenaResourceLoader.getter = Objects.requireNonNullElse(getter, id -> null);
     }
 
-    public void setGetter(Function<ResourceLocation, List<BlockStateModelLoader.LoadedJson>> getter) {
-        this.getter = Objects.requireNonNullElse(getter, id -> null);
-    }
-
-    @Override
-    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
-        this.data.clear();
-        this.data.putAll(object);
+    public static void reload(ResourceManager manager) {
+        AthenaResourceLoader.data.clear();
+        SimpleJsonResourceReloadListener.scanDirectory(manager, "athena", new Gson(), AthenaResourceLoader.data);
     }
 
     public static JsonObject getData(ResourceLocation modelType, ResourceLocation modelId) {
-        var modelData = INSTANCE.data.get(modelId);
+        var modelData = AthenaResourceLoader.data.get(modelId);
         if (modelData != null) {
             return checkObject(modelType, modelData);
         }
-        List<BlockStateModelLoader.LoadedJson> jsons = INSTANCE.getter.apply(convertModelIdToBlockStatePath(modelId));
+        List<BlockStateModelLoader.LoadedJson> jsons = AthenaResourceLoader.getter.apply(convertModelIdToBlockStatePath(modelId));
         if (jsons == null) return null;
         for (BlockStateModelLoader.LoadedJson json : jsons) {
             JsonObject object = checkObject(modelType, json.data());

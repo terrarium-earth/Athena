@@ -26,7 +26,7 @@ public class ModelBakeryMixin {
             Map<ResourceLocation, List<BlockStateModelLoader.LoadedJson>> map2,
             CallbackInfo ci
     ) {
-        AthenaResourceLoader.INSTANCE.setGetter(map2::get);
+        AthenaResourceLoader.setGetter(map2::get);
     }
 
 }
