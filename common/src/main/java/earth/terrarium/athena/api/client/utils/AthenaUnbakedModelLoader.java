@@ -46,9 +46,9 @@ public class AthenaUnbakedModelLoader {
             return null;
         }
 
-        return JsonOps.INSTANCE
-            .getMap(json)
-            .flatMap((map) -> codec().decode(JsonOps.INSTANCE, map))
+        return codec()
+            .codec()
+            .parse(JsonOps.INSTANCE, json)
             .result()
             .orElse(null);
     }

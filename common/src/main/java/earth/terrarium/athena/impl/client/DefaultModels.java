@@ -19,8 +19,8 @@ public class DefaultModels {
         FactoryManager.register(id("ctm"), ConnectedBlockModel.TYPE);
         FactoryManager.register(id("carpet_ctm"), ConnectedCarpetBlockModel.TYPE);
         FactoryManager.register(id("pane_ctm"), PaneConnectedBlockModel.TYPE);
-        FactoryManager.register(id("giant"), GiantBlockModel.TYPE);
-        // FactoryManager.register(id("mural"), GiantBlockModel.TYPE); TODO Is this type needed?
+        FactoryManager.register(id("giant"), GiantBlockModel.GIANT_TYPE);
+        FactoryManager.register(id("mural"), GiantBlockModel.MURAL_TYPE);
         FactoryManager.register(id("pillar"), PillarBlockModel.TYPE);
         FactoryManager.register(id("limited_pillar"), LimitedPillarBlockModel.TYPE);
         FactoryManager.register(id("pane_pillar"), PanePillarBlockModel.TYPE);

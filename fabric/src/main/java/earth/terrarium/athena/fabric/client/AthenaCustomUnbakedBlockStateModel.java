@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public record AthenaCustomUnbakedBlockStateModel(
         @NotNull AthenaUnbakedModel root
 ) implements CustomUnbakedBlockStateModel {
-    public static final MapCodec<AthenaCustomUnbakedBlockStateModel> CODEC = FactoryManager.loaderCodec()
+    public static final MapCodec<AthenaCustomUnbakedBlockStateModel> CODEC = FactoryManager.codec()
         .dispatchMap(
             DefaultModels.MODID + ":loader",
             (stateModel) -> stateModel.root().loader(),

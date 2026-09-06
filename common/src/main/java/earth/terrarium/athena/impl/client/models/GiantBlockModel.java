@@ -19,68 +19,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class GiantBlockModel implements AthenaBlockModel {
+    public static final AthenaModelType GIANT_TYPE = new AthenaModelType(Materials.CODEC.xmap((materials -> new GiantBlockModel(materials, false)), (model) -> model.materials));
+    public static final AthenaModelType MURAL_TYPE = new AthenaModelType(Materials.CODEC.xmap((materials -> new GiantBlockModel(materials, true)), (model) -> model.materials));
 
-    // TODO Is there an existing utility for this?
-    public static final MapCodec<GiantBlockModel> CODEC = new MapCodec<>() {
-        @Override
-        public <T> RecordBuilder<T> encode(GiantBlockModel input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
-            prefix = Dimensions.CODEC.encode(input.dimensions, ops, prefix);
-            prefix = Materials.codec(input.dimensions).encode(input.materials, ops, prefix);
-
-            return prefix;
-        }
-
-        @Override
-        public <T> DataResult<GiantBlockModel> decode(DynamicOps<T> ops, MapLike<T> input) {
-            return Dimensions.CODEC.decode(ops, input)
-                .flatMap((dimensions) ->
-                    Materials.codec(dimensions).decode(ops, input).map((materials) ->
-                        new GiantBlockModel(dimensions, materials)
-                    )
-                );
-        }
-
-        @Override
-        public <T> Stream<T> keys(DynamicOps<T> ops) {
-            // We can't predict the keys accurately given that they require the width and height, which we do not have here. Thus, we only include the keys that are guaranteed.
-            return Stream.concat(
-                Dimensions.CODEC.keys(ops),
-                Stream.of(
-                    "particle",
-                    "1",
-                    "2"
-                ).map(ops::createString)
-            );
-        }
-
-        @Override
-        public String toString() {
-            return "AthenaGiantBlockModelMapCodec";
-        }
-    };
-
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
-
-    private final Dimensions dimensions;
     private final Materials materials;
+    private final boolean mural;
 
-    public GiantBlockModel(Dimensions dimensions, Materials materials) {
-        this.dimensions = dimensions;
+    public GiantBlockModel(Materials materials, boolean mural) {
         this.materials = materials;
+        this.mural = mural;
     }
 
     @Override
     public AthenaModelType type() {
-        return TYPE;
+        return mural ? MURAL_TYPE : GIANT_TYPE;
     }
 
     @Override
     public List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState blockState, BlockPos pos, Direction direction) {
-        int width = dimensions.width();
-        int height = dimensions.height();
+        int width = materials.dimensions().width();
+        int height = materials.dimensions().height();
         int x = Math.abs(pos.getX());
         int y = Math.abs(pos.getY());
         int z = Math.abs(pos.getZ());
@@ -121,7 +81,7 @@ public class GiantBlockModel implements AthenaBlockModel {
         Int2ObjectMap<Material.Baked> textures = new Int2ObjectArrayMap<>();
         textures.put(0, getter.apply(materials.particle));
 
-        for (Map.Entry<Integer, Material> entry : materials.pixels().entrySet()) {
+        for (Map.Entry<Integer, Material> entry : materials.sections().entrySet()) {
             textures.put(entry.getKey().intValue(), getter.apply(entry.getValue()));
         }
 
@@ -136,25 +96,30 @@ public class GiantBlockModel implements AthenaBlockModel {
     }
 
     public record Materials(
+        Dimensions dimensions,
         Material particle,
-        Map<Integer, Material> pixels
+        Int2ObjectMap<Material> sections
     ) {
-        private static Keyable pixelKeys(Dimensions dimensions) {
+        public static final MapCodec<Materials> CODEC = Dimensions.CODEC.dispatchMap(Materials::dimensions, Materials::codec);
+
+        private static Keyable sectionKeys(Dimensions dimensions) {
             return Keyable.forStrings(() -> IntStream
                 .range(1, dimensions.width * dimensions.height + 1)
                 .mapToObj(String::valueOf)
             );
         }
 
-        public static MapCodec<Materials> codec(Dimensions dimensions) {
+        private static MapCodec<Materials> codec(Dimensions dimensions) {
             MapCodec<Materials> baseCodec = RecordCodecBuilder.mapCodec((instance) -> instance.group(
                 Material.CODEC.fieldOf("particle").forGetter(Materials::particle),
                 Codec.simpleMap(
                     Codec.STRING.xmap(Integer::parseInt, String::valueOf),
                     Material.CODEC,
-                    pixelKeys(dimensions)
-                ).forGetter(Materials::pixels)
-            ).apply(instance, Materials::new));
+                    sectionKeys(dimensions)
+                )
+                    .<Int2ObjectMap<Material>>xmap(Int2ObjectArrayMap::new, HashMap::new)
+                    .forGetter(Materials::sections)
+            ).apply(instance, (particle, sections) -> new Materials(dimensions, particle, sections)));
 
             return baseCodec.fieldOf("ctm_textures");
         }

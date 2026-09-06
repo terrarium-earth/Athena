@@ -50,7 +50,7 @@ public class FactoryManager {
      * Gets the codec for serializing and deserializing model loaders.
      * @return The codec for model loaders
      */
-    public static Codec<AthenaUnbakedModelLoader> loaderCodec() {
+    public static Codec<AthenaUnbakedModelLoader> codec() {
         return CODEC;
     }
 }
