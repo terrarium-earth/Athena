@@ -1,13 +1,15 @@
 package earth.terrarium.athena.impl.client.models;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelAttributes;
-import earth.terrarium.athena.api.client.models.AthenaModelFactory;
+import earth.terrarium.athena.api.client.models.AthenaModelType;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
 import earth.terrarium.athena.api.client.utils.CtmState;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
+import earth.terrarium.athena.api.client.utils.ModelConnectionCondition;
 import earth.terrarium.athena.impl.client.models.ctm.ConnectedTextureMap;
 import earth.terrarium.athena.impl.client.models.materials.MaterialStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -15,30 +17,41 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class ConnectedBlockModel implements AthenaBlockModel {
 
-    public static final AthenaModelFactory FACTORY = new Factory();
+    public static final MapCodec<ConnectedBlockModel> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
+        ConnectedTextureMap.DirectionalCtmProviders.CODEC.fieldOf("ctm_textures").forGetter((model) -> model.textureProviders),
+        ModelConnectionCondition.CONNECTS_TO_CODEC.forGetter((model) -> model.connectTo),
+        AthenaModelAttributes.TINT_CODEC.forGetter((model) -> model.attributes)
+    ).apply(instance, ConnectedBlockModel::new));
+
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private final MaterialStorage materials;
     private final ConnectedTextureMap textures;
-    private final BiPredicate<BlockState, BlockState> connectTo;
+    private final ConnectedTextureMap.DirectionalCtmProviders textureProviders;
+    private final ModelConnectionCondition connectTo;
     private final AthenaModelAttributes attributes;
 
-    public ConnectedBlockModel(MaterialStorage materials, ConnectedTextureMap textures, BiPredicate<BlockState, BlockState> connectTo, AthenaModelAttributes attributes) {
-        this.materials = materials;
-        this.textures = textures;
+    public ConnectedBlockModel(ConnectedTextureMap.DirectionalCtmProviders textureProviders, ModelConnectionCondition connectTo, AthenaModelAttributes attributes) {
+        this.textureProviders = textureProviders;
         this.connectTo = connectTo;
         this.attributes = attributes;
+
+        this.materials = new MaterialStorage();
+        this.textures = textureProviders.resolve(this.materials);
+    }
+
+    @Override
+    public AthenaModelType type() {
+        return TYPE;
     }
 
     @Override
@@ -68,17 +81,5 @@ public class ConnectedBlockModel implements AthenaBlockModel {
     @Override
     public @Nullable AthenaModelAttributes getAttributes() {
         return this.attributes;
-    }
-
-    private static class Factory implements AthenaModelFactory {
-
-        @Override
-        public Supplier<AthenaBlockModel> create(JsonObject json) {
-            var materials = new MaterialStorage();
-            var textures = ConnectedTextureMap.of(materials, List.of(Direction.values()), GsonHelper.getNonNull(json, "ctm_textures"));
-            BiPredicate<BlockState, BlockState> conditions = CtmUtils.parseCondition(json);
-            var attributes = AthenaModelAttributes.fromJson(json);
-            return () -> new ConnectedBlockModel(materials, textures, conditions, attributes);
-        }
     }
 }

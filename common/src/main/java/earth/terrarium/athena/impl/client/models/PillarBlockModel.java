@@ -1,19 +1,18 @@
 package earth.terrarium.athena.impl.client.models;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
-import earth.terrarium.athena.api.client.models.AthenaModelFactory;
+import earth.terrarium.athena.api.client.models.AthenaModelType;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
-import earth.terrarium.athena.api.client.utils.CtmUtils;
 import earth.terrarium.athena.api.client.utils.AthenaUtils;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import earth.terrarium.athena.api.client.utils.CtmUtils;
+import earth.terrarium.athena.api.client.utils.PillarMaterials;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -22,18 +21,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class PillarBlockModel implements AthenaBlockModel {
 
-    public static final AthenaModelFactory FACTORY = new Factory();
+    public static MapCodec<PillarBlockModel> CODEC = PillarMaterials.CODEC.fieldOf("ctm_textures").xmap(PillarBlockModel::new, (model) -> model.materials);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private static final List<AthenaQuad> CAP = List.of(AthenaQuad.withSprite(0));
 
-    private final Int2ObjectMap<Material> materials;
+    private final PillarMaterials materials;
 
-    public PillarBlockModel(Int2ObjectMap<Material> materials) {
+    public PillarBlockModel(PillarMaterials materials) {
         this.materials = materials;
+    }
+
+    @Override
+    public AthenaModelType type() {
+        return TYPE;
     }
 
     @Override
@@ -78,31 +82,6 @@ public class PillarBlockModel implements AthenaBlockModel {
 
     @Override
     public Int2ObjectMap<Material.Baked> getTextures(Function<Material, Material.Baked> getter) {
-        Int2ObjectMap<Material.Baked> textures = new Int2ObjectArrayMap<>();
-        for (var entry : materials.int2ObjectEntrySet()) {
-            textures.put(entry.getIntKey(), getter.apply(entry.getValue()));
-        }
-        return textures;
-    }
-
-    private static class Factory implements AthenaModelFactory {
-
-        @Override
-        public Supplier<AthenaBlockModel> create(JsonObject json) {
-            final var materials = parseMaterials(GsonHelper.getAsJsonObject(json, "ctm_textures"));
-            return () -> new PillarBlockModel(materials);
-        }
-
-        private static Int2ObjectMap<Material> parseMaterials(JsonObject json) {
-            Int2ObjectMap<Material> materials = new Int2ObjectArrayMap<>();
-            materials.put(0, CtmUtils.blockMat(GsonHelper.getAsString(json, "particle")));
-            materials.put(4, CtmUtils.blockMat(GsonHelper.getAsString(json, "self")));
-
-            materials.put(1, CtmUtils.blockMat(GsonHelper.getAsString(json, "top")));
-            materials.put(2, CtmUtils.blockMat(GsonHelper.getAsString(json, "center")));
-            materials.put(3, CtmUtils.blockMat(GsonHelper.getAsString(json, "bottom")));
-
-            return materials;
-        }
+        return materials.baked(getter);
     }
 }

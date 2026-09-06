@@ -25,7 +25,7 @@ public class FactoryManager {
      * @param id The id of the model factory
      * @param factory The factory to use
      */
-    public static void register(Identifier id, AthenaModelFactory factory) {
+    public static void register(Identifier id, AthenaModelType factory) {
         LOADERS.put(id, SERVICE.register(id, factory));
     }
 
