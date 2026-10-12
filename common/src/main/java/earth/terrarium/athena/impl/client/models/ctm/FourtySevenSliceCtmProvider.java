@@ -1,14 +1,25 @@
 package earth.terrarium.athena.impl.client.models.ctm;
 
 import com.google.common.base.Preconditions;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.CtmState;
+import earth.terrarium.athena.impl.client.models.materials.MaterialStorage;
 
 import java.util.List;
 
 public record FourtySevenSliceCtmProvider(
         int[] sprites
 ) implements CtmProvider {
+    private static final String SLICE_47_KEY = "[$index]";
+
+    private static final Codec<String> SLICE_47_STRING = Codec.STRING.validate((value) -> value.contains(SLICE_47_KEY) ?
+        DataResult.success(value) :
+        DataResult.error(() -> "String " + value + " is not a 47 slice string.")
+    );
+
+    public static final Codec<FourtySevenSliceCtmProvider.Type> CODEC = SLICE_47_STRING.xmap(Type::new, Type::texture);
 
     private static final int EXPECTED_SPRITES = 47;
     private static final int[] BIT_TO_INDEX = new int[]{
@@ -51,5 +62,18 @@ public record FourtySevenSliceCtmProvider(
         if (state.downLeft()) bits |= 64;
         if (state.downRight()) bits |= 128;
         return bits;
+    }
+
+    public record Type(String texture) implements CtmProvider.Type {
+        @Override
+        public CtmProvider build(MaterialStorage materials) {
+            int[] sprites = new int[47];
+
+            for (int i = 0; i < sprites.length; i++) {
+                sprites[i] = materials.put(texture.replace(SLICE_47_KEY, String.valueOf(i)));
+            }
+
+            return new FourtySevenSliceCtmProvider(sprites);
+        }
     }
 }

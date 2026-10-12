@@ -1,42 +1,48 @@
 package earth.terrarium.athena.impl.client.models;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
-import earth.terrarium.athena.api.client.models.AthenaModelFactory;
+import earth.terrarium.athena.api.client.models.AthenaModelType;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
-import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
-import earth.terrarium.athena.api.client.utils.CtmState;
-import earth.terrarium.athena.api.client.utils.CtmUtils;
-import earth.terrarium.athena.api.client.utils.AthenaUtils;
+import earth.terrarium.athena.api.client.utils.*;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class PaneConnectedBlockModel implements AthenaBlockModel {
 
-    public static final AthenaModelFactory FACTORY = new Factory();
+    public static final MapCodec<PaneConnectedBlockModel> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
+        Materials.CODEC.fieldOf("ctm_textures").forGetter((model) -> model.materials),
+        Codec.BOOL.optionalFieldOf("connect_corners", false).forGetter((model) -> model.connectCorners)
+    ).apply(instance, PaneConnectedBlockModel::new));
+
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private static final List<AthenaQuad> CENTER = List.of(new AthenaQuad(1, 0, 1, 1, 0, Rotation.NONE, 0.4375f));
     private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
 
-    private final Int2ObjectMap<Material> materials;
+    private final Materials materials;
     private final boolean connectCorners;
 
-    public PaneConnectedBlockModel(Int2ObjectMap<Material> materials, boolean connectCorners) {
+    public PaneConnectedBlockModel(Materials materials, boolean connectCorners) {
         this.materials = materials;
         this.connectCorners = connectCorners;
+    }
+
+    @Override
+    public AthenaModelType type() {
+        return TYPE;
     }
 
     @Override
@@ -92,9 +98,16 @@ public class PaneConnectedBlockModel implements AthenaBlockModel {
     @Override
     public Int2ObjectMap<Material.Baked> getTextures(Function<Material, Material.Baked> getter) {
         final var textures = new Int2ObjectArrayMap<Material.Baked>();
-        for (var entry : this.materials.int2ObjectEntrySet()) {
-            textures.put(entry.getIntKey(), getter.apply(entry.getValue()));
-        }
+
+        CtmMaterials baseMaterials = materials.baseMaterials();
+        textures.put(0, getter.apply(baseMaterials.particle()));
+        textures.put(2, getter.apply(baseMaterials.center()));
+        textures.put(3, getter.apply(baseMaterials.vertical()));
+        textures.put(4, getter.apply(baseMaterials.horizontal()));
+        textures.put(1, getter.apply(baseMaterials.empty()));
+        textures.put(5, getter.apply(materials.edge.orElse(baseMaterials.particle())));
+        textures.put(6, getter.apply(materials.sideEdge.orElse(baseMaterials.particle())));
+
         return textures;
     }
 
@@ -137,16 +150,15 @@ public class PaneConnectedBlockModel implements AthenaBlockModel {
         return false;
     }
 
-    private static class Factory implements AthenaModelFactory {
-
-        @Override
-        public Supplier<AthenaBlockModel> create(JsonObject json) {
-            final boolean connectCorners = GsonHelper.getAsBoolean(json, "connect_corners", false);
-            final var textureObject = GsonHelper.getAsJsonObject(json, "ctm_textures");
-            final var materials = CtmUtils.parseCtmMaterials(textureObject);
-            materials.put(5, CtmUtils.blockMat(GsonHelper.getAsString(textureObject, "edge", GsonHelper.getAsString(textureObject, "particle"))));
-            materials.put(6, CtmUtils.blockMat(GsonHelper.getAsString(textureObject, "side_edge", GsonHelper.getAsString(textureObject, "particle"))));
-            return () -> new PaneConnectedBlockModel(materials, connectCorners);
-        }
+    public record Materials(
+        CtmMaterials baseMaterials,
+        Optional<Material> edge,
+        Optional<Material> sideEdge
+    ) {
+        public static final MapCodec<Materials> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
+            CtmMaterials.CODEC.fieldOf("particle").forGetter(Materials::baseMaterials),
+            Material.CODEC.optionalFieldOf("edge").forGetter(Materials::edge),
+            Material.CODEC.optionalFieldOf("side_edge").forGetter(Materials::sideEdge)
+        ).apply(instance, Materials::new));
     }
 }

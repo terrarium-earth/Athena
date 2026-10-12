@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public interface AthenaBlockModel {
+    AthenaModelType type();
 
     List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction);
 

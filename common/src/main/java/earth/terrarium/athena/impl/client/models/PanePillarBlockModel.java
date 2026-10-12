@@ -1,15 +1,18 @@
 package earth.terrarium.athena.impl.client.models;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
-import earth.terrarium.athena.api.client.models.AthenaModelFactory;
+import earth.terrarium.athena.api.client.models.AthenaModelType;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
 import earth.terrarium.athena.api.client.utils.AthenaUtils;
 import earth.terrarium.athena.api.client.utils.CtmUtils;
+import earth.terrarium.athena.api.client.utils.PillarMaterials;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,20 +22,26 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class PanePillarBlockModel implements AthenaBlockModel {
 
-    public static final AthenaModelFactory FACTORY = new Factory();
+    public static final MapCodec<PanePillarBlockModel> CODEC = Materials.CODEC.fieldOf("ctm_textures").xmap(PanePillarBlockModel::new, (model) -> model.materials);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
 
-    private final Int2ObjectMap<Material> materials;
+    private final Materials materials;
 
-
-    public PanePillarBlockModel(Int2ObjectMap<Material> materials) {
+    public PanePillarBlockModel(Materials materials) {
         this.materials = materials;
+    }
+
+    @Override
+    public AthenaModelType type() {
+        return TYPE;
     }
 
     @Override
@@ -78,9 +87,11 @@ public class PanePillarBlockModel implements AthenaBlockModel {
     @Override
     public Int2ObjectMap<Material.Baked> getTextures(Function<Material, Material.Baked> getter) {
         final var textures = new Int2ObjectArrayMap<Material.Baked>();
-        for (var entry : this.materials.int2ObjectEntrySet()) {
-            textures.put(entry.getIntKey(), getter.apply(entry.getValue()));
-        }
+
+        materials.baseMaterials.addMaterials(textures, getter);
+        textures.put(5, getter.apply(materials.edge().orElse(materials.baseMaterials().particle())));
+        textures.put(6, getter.apply(materials.sideEdge().orElse(materials.baseMaterials().particle())));
+
         return textures;
     }
 
@@ -113,26 +124,15 @@ public class PanePillarBlockModel implements AthenaBlockModel {
         return quads;
     }
 
-    private static class Factory implements AthenaModelFactory {
-
-        @Override
-        public Supplier<AthenaBlockModel> create(JsonObject json) {
-            final var materials = parseMaterials(GsonHelper.getAsJsonObject(json, "ctm_textures"));
-            return () -> new PanePillarBlockModel(materials);
-        }
-
-        private static Int2ObjectMap<Material> parseMaterials(JsonObject json) {
-            Int2ObjectMap<Material> materials = new Int2ObjectArrayMap<>();
-            materials.put(0, CtmUtils.blockMat(GsonHelper.getAsString(json, "particle")));
-            materials.put(4, CtmUtils.blockMat(GsonHelper.getAsString(json, "self")));
-
-            materials.put(1, CtmUtils.blockMat(GsonHelper.getAsString(json, "top")));
-            materials.put(2, CtmUtils.blockMat(GsonHelper.getAsString(json, "center")));
-            materials.put(3, CtmUtils.blockMat(GsonHelper.getAsString(json, "bottom")));
-
-            materials.put(5, CtmUtils.blockMat(GsonHelper.getAsString(json, "edge", GsonHelper.getAsString(json, "particle"))));
-            materials.put(6, CtmUtils.blockMat(GsonHelper.getAsString(json, "side_edge", GsonHelper.getAsString(json, "particle"))));
-            return materials;
-        }
+    public record Materials(
+        PillarMaterials baseMaterials,
+        Optional<Material> edge,
+        Optional<Material> sideEdge
+    ) {
+        public static final MapCodec<Materials> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
+            PillarMaterials.CODEC.forGetter(Materials::baseMaterials),
+            Material.CODEC.optionalFieldOf("edge").forGetter(Materials::edge),
+            Material.CODEC.optionalFieldOf("side_edge").forGetter(Materials::sideEdge)
+        ).apply(instance, Materials::new));
     }
 }

@@ -1,10 +1,10 @@
 package earth.terrarium.athena.api.client.models;
 
-import com.google.gson.JsonObject;
-import org.jetbrains.annotations.ApiStatus;
+import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
 public class AthenaModelAttributes {
+    public static final MapCodec<AthenaModelAttributes> TINT_CODEC = TintProvider.CODEC.fieldOf("tint").xmap(AthenaModelAttributes::new, AthenaModelAttributes::getTint);
 
     public static final AthenaModelAttributes EMPTY = new AthenaModelAttributes(null);
 
@@ -16,11 +16,5 @@ public class AthenaModelAttributes {
 
     public TintProvider getTint() {
         return this.tint;
-    }
-
-    @ApiStatus.Internal
-    public static AthenaModelAttributes fromJson(JsonObject json) {
-        var tint = TintProvider.fromJson(json);
-        return new AthenaModelAttributes(tint);
     }
 }
