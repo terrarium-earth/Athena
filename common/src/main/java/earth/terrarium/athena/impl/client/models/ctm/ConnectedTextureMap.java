@@ -1,8 +1,7 @@
 package earth.terrarium.athena.impl.client.models.ctm;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.*;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.CtmState;
 import earth.terrarium.athena.impl.client.models.materials.MaterialStorage;
@@ -12,6 +11,7 @@ import net.minecraft.util.StringRepresentable;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ConnectedTextureMap {
 
@@ -32,9 +32,10 @@ public class ConnectedTextureMap {
     }
 
     public record DirectionalCtmProviders(
-        Optional<CtmProvider.Type> defaultProvider,
-        Map<Direction, CtmProvider.Type> directions
+        Map<Optional<Direction>, CtmProvider.Type> directions
     ) {
+        private static final String OPTIONAL_KEY = "default";
+
         private static final Codec<DirectionalCtmProviders> NON_DIRECTIONAL_CODEC = CtmProvider.Type.CODEC.flatComapMap(
             DirectionalCtmProviders::new,
             (providers) -> providers.defaultProvider().isPresent() && providers.directions().isEmpty() ?
@@ -42,42 +43,65 @@ public class ConnectedTextureMap {
                 DataResult.error(() -> "Can not encode DirectionalCtmProviders to a single provider when default provider isn't present or there are directional providers defined")
         );
 
-        private static final Codec<DirectionalCtmProviders> FULL_DIRECTIONAL_CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-            CtmProvider.Type.CODEC.optionalFieldOf("default").forGetter(DirectionalCtmProviders::defaultProvider),
-            Codec.simpleMap(Direction.CODEC, CtmProvider.Type.CODEC, StringRepresentable.keys(Direction.values())).forGetter(DirectionalCtmProviders::directions)
-        ).apply(instance, DirectionalCtmProviders::new));
+        private static final Codec<Optional<Direction>> OPTIONAL_DIRECTION_CODEC = Codec.either(
+            Codec.STRING.comapFlatMap(
+                (value) -> value.equals(OPTIONAL_KEY) ?
+                    DataResult.success(Optional.<Direction>empty()) :
+                    DataResult.error(() -> "Expected '" + OPTIONAL_KEY + "', got '" + value + "'"),
+                (unit) -> OPTIONAL_KEY
+            ),
+            Direction.CODEC.xmap(Optional::of, Optional::get)
+        ).xmap(Either::unwrap, (optional) -> optional.isEmpty() ? Either.left(optional) : Either.right(optional));
 
-        public static final Codec<DirectionalCtmProviders> CODEC =
-            NON_DIRECTIONAL_CODEC.withAlternative(FULL_DIRECTIONAL_CODEC.validate((providers) -> {
-                if (providers.directions().size() < Direction.values().length && providers.defaultProvider().isEmpty()) {
-                    return DataResult.error(() -> {
-                        String directions = Arrays.stream(Direction.values()).map(StringRepresentable::getSerializedName).collect(Collectors.joining(", "));
+        private static final MapCodec<Map<Optional<Direction>, CtmProvider.Type>> DIRECTIONAL_TYPES_MAP_CODEC = Codec.simpleMap(
+                OPTIONAL_DIRECTION_CODEC,
+                CtmProvider.Type.CODEC,
+                Keyable.forStrings(() -> Stream.concat(
+                    Arrays.stream(Direction.values()).map(Direction::getSerializedName),
+                    Stream.of(OPTIONAL_KEY)
+                ))
+        );
 
-                        return "Must define all directions (" + directions + ") or define a 'default' value";
-                    });
-                } else {
-                    return DataResult.success(providers);
-                }
-            }));
+        private static final Codec<DirectionalCtmProviders> FULL_DIRECTIONAL_CODEC = DIRECTIONAL_TYPES_MAP_CODEC
+            .xmap(DirectionalCtmProviders::new, DirectionalCtmProviders::directions)
+            .codec();
+
+        private static final Codec<DirectionalCtmProviders> VALIDATED_DIRECTIONAL_CODEC = FULL_DIRECTIONAL_CODEC.validate((providers) -> {
+            if (providers.directions().size() < Direction.values().length && providers.defaultProvider().isEmpty()) {
+                return DataResult.error(() -> {
+                    String directions = Arrays.stream(Direction.values()).map(StringRepresentable::getSerializedName).collect(Collectors.joining(", "));
+
+                    return "Must define all directions (" + directions + ") or define a 'default' value";
+                });
+            } else {
+                return DataResult.success(providers);
+            }
+        });
+
+        public static final Codec<DirectionalCtmProviders> CODEC = VALIDATED_DIRECTIONAL_CODEC.withAlternative(NON_DIRECTIONAL_CODEC);
 
         public DirectionalCtmProviders(CtmProvider.Type provider) {
-            this(Optional.of(provider), Map.of());
+            this(Map.of(Optional.empty(), provider));
         }
 
         public ConnectedTextureMap resolve(MaterialStorage materials) {
             var textures = new ConnectedTextureMap();
 
             for (Direction direction : Direction.values()) {
-                CtmProvider.Type type = directions().get(direction);
+                CtmProvider.Type type = directions().get(Optional.of(direction));
 
                 if (type == null) {
-                    type = defaultProvider.orElseThrow();
+                    type = defaultProvider().orElseThrow();
                 }
 
                 textures.quads.put(direction, type.build(materials));
             }
 
             return textures;
+        }
+
+        private Optional<CtmProvider.Type> defaultProvider() {
+            return Optional.ofNullable(directions().get(Optional.<Direction>empty()));
         }
     }
 }

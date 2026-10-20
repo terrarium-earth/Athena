@@ -13,12 +13,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class GiantBlockModel implements AthenaBlockModel {
     public static final AthenaModelType GIANT_TYPE = new AthenaModelType(Materials.CODEC.xmap((materials -> new GiantBlockModel(materials, false)), (model) -> model.materials));
@@ -79,10 +81,9 @@ public class GiantBlockModel implements AthenaBlockModel {
     @Override
     public Int2ObjectMap<Material.Baked> getTextures(Function<Material, Material.Baked> getter) {
         Int2ObjectMap<Material.Baked> textures = new Int2ObjectArrayMap<>();
-        textures.put(0, getter.apply(materials.particle));
 
-        for (Map.Entry<Integer, Material> entry : materials.sections().entrySet()) {
-            textures.put(entry.getKey().intValue(), getter.apply(entry.getValue()));
+        for (Map.Entry<MaterialKey, Material> entry : materials.sections().entrySet()) {
+            textures.put(entry.getKey().textureIndex(), getter.apply(entry.getValue()));
         }
 
         return textures;
@@ -95,31 +96,72 @@ public class GiantBlockModel implements AthenaBlockModel {
         ).apply(instance, Dimensions::new));
     }
 
+    private sealed interface MaterialKey {
+        String PARTICLE_KEY = "particle";
+
+        Codec<MaterialKey> CODEC = Codec.STRING.comapFlatMap((value) -> {
+            if (value.equals(PARTICLE_KEY)) {
+                return DataResult.success(ParticleKey.INSTANCE);
+            }
+
+            try {
+                return DataResult.success(new SectionKey(Integer.parseInt(value)));
+            } catch (NumberFormatException error) {
+                return DataResult.error(error::getMessage);
+            }
+        }, MaterialKey::toString);
+
+        static Keyable keys(Dimensions dimensions) {
+            return Keyable.forStrings(() -> Stream.concat(SectionKey.keys(dimensions), Stream.of(PARTICLE_KEY)));
+        }
+
+        int textureIndex();
+
+        record SectionKey(int section) implements MaterialKey {
+            @Override
+            public @NotNull String toString() {
+                return String.valueOf(section());
+            }
+
+            private static Stream<String> keys(Dimensions dimensions) {
+                return IntStream
+                    .range(1, dimensions.width * dimensions.height + 1)
+                    .mapToObj(String::valueOf);
+            }
+
+            @Override
+            public int textureIndex() {
+                return section();
+            }
+        }
+
+        final class ParticleKey implements MaterialKey {
+            public static final ParticleKey INSTANCE = new ParticleKey();
+
+            @Override
+            public String toString() {
+                return PARTICLE_KEY;
+            }
+
+            @Override
+            public int textureIndex() {
+                return 0;
+            }
+        }
+    }
+
     public record Materials(
         Dimensions dimensions,
-        Material particle,
-        Int2ObjectMap<Material> sections
+        Map<MaterialKey, Material> sections
     ) {
         public static final MapCodec<Materials> CODEC = Dimensions.CODEC.dispatchMap(Materials::dimensions, Materials::codec);
 
-        private static Keyable sectionKeys(Dimensions dimensions) {
-            return Keyable.forStrings(() -> IntStream
-                .range(1, dimensions.width * dimensions.height + 1)
-                .mapToObj(String::valueOf)
-            );
-        }
-
         private static MapCodec<Materials> codec(Dimensions dimensions) {
-            MapCodec<Materials> baseCodec = RecordCodecBuilder.mapCodec((instance) -> instance.group(
-                Material.CODEC.fieldOf("particle").forGetter(Materials::particle),
-                Codec.simpleMap(
-                    Codec.STRING.xmap(Integer::parseInt, String::valueOf),
+            MapCodec<Materials> baseCodec = Codec.simpleMap(
+                    MaterialKey.CODEC,
                     Material.CODEC,
-                    sectionKeys(dimensions)
-                )
-                    .<Int2ObjectMap<Material>>xmap(Int2ObjectArrayMap::new, HashMap::new)
-                    .forGetter(Materials::sections)
-            ).apply(instance, (particle, sections) -> new Materials(dimensions, particle, sections)));
+                    MaterialKey.keys(dimensions)
+            ).xmap((sections) -> new Materials(dimensions, sections), Materials::sections);
 
             return baseCodec.fieldOf("ctm_textures");
         }

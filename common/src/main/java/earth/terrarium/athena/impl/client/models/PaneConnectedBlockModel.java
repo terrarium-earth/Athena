@@ -156,7 +156,7 @@ public class PaneConnectedBlockModel implements AthenaBlockModel {
         Optional<Material> sideEdge
     ) {
         public static final MapCodec<Materials> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
-            CtmMaterials.CODEC.fieldOf("particle").forGetter(Materials::baseMaterials),
+            CtmMaterials.CODEC.forGetter(Materials::baseMaterials),
             Material.CODEC.optionalFieldOf("edge").forGetter(Materials::edge),
             Material.CODEC.optionalFieldOf("side_edge").forGetter(Materials::sideEdge)
         ).apply(instance, Materials::new));

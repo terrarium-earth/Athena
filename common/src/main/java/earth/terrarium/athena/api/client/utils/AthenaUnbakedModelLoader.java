@@ -1,6 +1,7 @@
 package earth.terrarium.athena.api.client.utils;
 
 import com.google.gson.JsonObject;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
@@ -14,11 +15,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class AthenaUnbakedModelLoader {
+
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     private final Identifier id;
     private final AthenaModelType type;
@@ -49,6 +53,7 @@ public class AthenaUnbakedModelLoader {
         return codec()
             .codec()
             .parse(JsonOps.INSTANCE, json)
+            .ifError((error) -> LOGGER.error("Failed to load Athena model for {}. {}", state, error))
             .result()
             .orElse(null);
     }
