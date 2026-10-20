@@ -53,7 +53,7 @@ public class ForgeAthenaUtils {
                 material,
                 transparency,
                 tint instanceof TintProvider.Index(var index) ? index : -1,
-                true,
+                null,
                 0,
                 true
         );
