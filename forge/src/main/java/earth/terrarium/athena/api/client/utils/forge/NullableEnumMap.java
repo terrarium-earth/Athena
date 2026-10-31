@@ -156,5 +156,18 @@ public class NullableEnumMap<K extends Enum<K>, V> implements Map<K, V> {
         public MapEntry(V value) {
             this.value = value;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            //noinspection unchecked
+            return Objects.equals(this.value, ((MapEntry) obj).value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
     }
 }
