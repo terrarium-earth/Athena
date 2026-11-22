@@ -1,6 +1,5 @@
 package earth.terrarium.athena.impl.client.models;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelType;
@@ -25,7 +24,7 @@ import java.util.function.Function;
 public class PillarBlockModel implements AthenaBlockModel {
 
     public static MapCodec<PillarBlockModel> CODEC = PillarMaterials.CODEC.fieldOf("ctm_textures").xmap(PillarBlockModel::new, (model) -> model.materials);
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
 
     private static final List<AthenaQuad> CAP = List.of(AthenaQuad.withSprite(0));
 

@@ -27,7 +27,7 @@ public class PaneConnectedBlockModel implements AthenaBlockModel {
         Codec.BOOL.optionalFieldOf("connect_corners", false).forGetter((model) -> model.connectCorners)
     ).apply(instance, PaneConnectedBlockModel::new));
 
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
 
     private static final List<AthenaQuad> CENTER = List.of(new AthenaQuad(1, 0, 1, 1, 0, Rotation.NONE, 0.4375f));
     private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));

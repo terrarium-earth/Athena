@@ -1,7 +1,5 @@
 package earth.terrarium.athena.impl.client.models;
 
-import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
@@ -9,14 +7,12 @@ import earth.terrarium.athena.api.client.models.AthenaModelType;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
 import earth.terrarium.athena.api.client.utils.AthenaUtils;
-import earth.terrarium.athena.api.client.utils.CtmUtils;
 import earth.terrarium.athena.api.client.utils.PillarMaterials;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -24,12 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class PanePillarBlockModel implements AthenaBlockModel {
 
     public static final MapCodec<PanePillarBlockModel> CODEC = Materials.CODEC.fieldOf("ctm_textures").xmap(PanePillarBlockModel::new, (model) -> model.materials);
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
 
     private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
 

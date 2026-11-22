@@ -4,6 +4,7 @@ import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelAttributes;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.NullableEnumMap;
+import earth.terrarium.athena.impl.internal.AthenaUnbakedModel;
 import earth.terrarium.athena.impl.internal.BlockStateModelMaterialInfo;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -34,12 +35,16 @@ public class AthenaBakedModel implements BlockStateModel {
     private final BlockStateModelMaterialInfo info;
     private final BlockStateModelPart part;
 
-    public AthenaBakedModel(AthenaBlockModel model, Function<Material, Material.Baked> function) {
+    private AthenaBakedModel(BlockState state, AthenaBlockModel model, Function<Material, Material.Baked> function) {
         this.model = model;
         this.materials = this.model.getTextures(function);
         this.attributes = model.getAttributes();
         this.info = new BlockStateModelMaterialInfo(this.materials);
         this.part = new Part();
+    }
+
+    public static AthenaUnbakedModel unbaked(BlockState state, AthenaBlockModel model) {
+        return new AthenaUnbakedModel(model, (baker) -> new AthenaBakedModel(state, model, baker));
     }
 
     @Override

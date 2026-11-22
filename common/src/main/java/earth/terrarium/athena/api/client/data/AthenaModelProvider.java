@@ -1,7 +1,6 @@
 package earth.terrarium.athena.api.client.data;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -27,9 +26,8 @@ public abstract class AthenaModelProvider implements DataProvider {
         models.put(block, model);
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends AthenaBlockModel> CompletableFuture<?> save(CachedOutput cache, T model, Path path) {
-        return DataProvider.saveStable(cache, ((Codec<T>) model.type().codec()), model, path);
+        return DataProvider.saveStable(cache, AthenaBlockModel.CODEC.codec(), model, path);
     }
 
     @Override

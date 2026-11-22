@@ -1,16 +1,18 @@
 package earth.terrarium.athena.impl.internal;
 
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
-import earth.terrarium.athena.api.client.utils.AthenaUnbakedModelLoader;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.Function;
+
 public record AthenaUnbakedModel(
     AthenaBlockModel model,
-    AthenaUnbakedModelLoader loader
+    Function<Function<Material, Material.Baked>, BlockStateModel> baker
 ) implements BlockStateModel.UnbakedRoot {
 
     @Override
@@ -20,7 +22,7 @@ public record AthenaUnbakedModel(
 
     @Override
     public @NotNull BlockStateModel bake(@NonNull BlockState state, @NonNull ModelBaker baker) {
-        return this.loader.bake(this, baker);
+        return this.baker.apply(material -> baker.materials().get(material, () -> "Athena: ?"));
     }
 
     @Override

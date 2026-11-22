@@ -1,31 +1,26 @@
 package earth.terrarium.athena.impl.client.models;
 
-import com.google.gson.JsonObject;
 import com.mojang.serialization.MapCodec;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelType;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
-import earth.terrarium.athena.api.client.utils.CtmUtils;
 import earth.terrarium.athena.api.client.utils.PillarMaterials;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class LimitedPillarBlockModel implements AthenaBlockModel {
 
     public static final MapCodec<LimitedPillarBlockModel> CODEC = PillarMaterials.CODEC.fieldOf("ctm_textures").xmap(LimitedPillarBlockModel::new, (model) -> model.materials);
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
 
     private static final List<AthenaQuad> CENTER = List.of(AthenaQuad.withSprite(2));
     private static final List<AthenaQuad> TOP = List.of(AthenaQuad.withSprite(1));

@@ -1,6 +1,8 @@
 package earth.terrarium.athena.api.client.models;
 
+import com.mojang.serialization.MapCodec;
 import earth.terrarium.athena.api.client.utils.AppearanceAndTintGetter;
+import earth.terrarium.athena.impl.loading.AthenaResourceLoader;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -14,6 +16,13 @@ import java.util.Map;
 import java.util.function.Function;
 
 public interface AthenaBlockModel {
+    MapCodec<AthenaBlockModel> CODEC = AthenaModelType.CODEC
+        .dispatchMap(
+            AthenaResourceLoader.KEY,
+            AthenaBlockModel::type,
+            AthenaModelType::codec
+        );
+
     AthenaModelType type();
 
     List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction);
