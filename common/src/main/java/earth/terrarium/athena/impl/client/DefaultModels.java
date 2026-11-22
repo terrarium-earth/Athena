@@ -5,8 +5,6 @@ import earth.terrarium.athena.api.client.utils.ModelConnectionCondition;
 import earth.terrarium.athena.impl.client.models.*;
 import net.minecraft.resources.Identifier;
 
-import java.util.Map;
-
 public class DefaultModels {
 
     public static final String MODID = "athena";
@@ -24,6 +22,7 @@ public class DefaultModels {
         FactoryManager.register(id("pillar"), PillarBlockModel.TYPE);
         FactoryManager.register(id("limited_pillar"), LimitedPillarBlockModel.TYPE);
         FactoryManager.register(id("pane_pillar"), PanePillarBlockModel.TYPE);
+        FactoryManager.register(id("variants"), MultiVariantBlockModel.TYPE);
 
         ModelConnectionCondition.CONDITION_TYPES.put("not", ModelConnectionCondition.Not.CODEC);
         ModelConnectionCondition.CONDITION_TYPES.put("and", ModelConnectionCondition.And.CODEC);

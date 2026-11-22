@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import earth.terrarium.athena.api.client.fabric.AthenaBakedModel;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.impl.internal.AthenaUnbakedModel;
-import earth.terrarium.athena.impl.loading.AthenaResourceLoader;
 import net.fabricmc.fabric.api.client.model.loading.v1.CustomUnbakedBlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBaker;
@@ -33,5 +32,10 @@ public record AthenaCustomUnbakedBlockStateModel(
     @Override
     public void resolveDependencies(@NotNull ResolvableModel.Resolver arg) {
 
+    }
+
+    @Override
+    public BlockStateModel.UnbakedRoot asRoot() {
+        return this.root;
     }
 }

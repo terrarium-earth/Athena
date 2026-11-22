@@ -37,10 +37,10 @@ public class AthenaBakedModel implements BlockStateModel {
 
     private AthenaBakedModel(BlockState state, AthenaBlockModel model, Function<Material, Material.Baked> function) {
         this.model = model;
-        this.materials = this.model.getTextures(function);
-        this.attributes = model.getAttributes();
+        this.materials = this.model.getTextures(function, state);
+        this.attributes = model.getAttributes(state);
         this.info = new BlockStateModelMaterialInfo(this.materials);
-        this.part = new Part();
+        this.part = new Part(state);
     }
 
     public static AthenaUnbakedModel unbaked(BlockState state, AthenaBlockModel model) {
@@ -99,13 +99,19 @@ public class AthenaBakedModel implements BlockStateModel {
 
         private final NullableEnumMap<Direction, List<BakedQuad>> defaultQuads = new NullableEnumMap<>(Direction.class);
 
+        private final BlockState state;
+
+        private Part(BlockState state) {
+            this.state = state;
+        }
+
         @Override
         public @NotNull List<BakedQuad> getQuads(@Nullable Direction direction) {
             var quads = this.defaultQuads.get(direction);
             if (quads == null) {
                 quads = new ArrayList<>();
 
-                var defaults = AthenaBakedModel.this.model.getDefaultQuads(direction);
+                var defaults = AthenaBakedModel.this.model.getDefaultQuads(direction, state);
                 var tint = AthenaBakedModel.this.attributes.getTint();
                 var materials = AthenaBakedModel.this.materials;
                 for (var entry : defaults.entrySet()) {

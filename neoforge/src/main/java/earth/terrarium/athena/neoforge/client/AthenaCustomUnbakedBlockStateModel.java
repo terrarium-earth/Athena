@@ -32,4 +32,9 @@ public record AthenaCustomUnbakedBlockStateModel(
     public void resolveDependencies(@NotNull Resolver arg) {
 
     }
+
+    @Override
+    public BlockStateModel.UnbakedRoot asRoot() {
+        return this.root;
+    }
 }
