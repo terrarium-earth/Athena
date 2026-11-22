@@ -76,13 +76,12 @@ public sealed interface ModelConnectionCondition extends BiPredicate<BlockState,
                 return false;
             }
 
-            return conditions()
-                .stream()
-                .reduce(
-                    true,
-                    (base, condition) -> condition.test(selfState, otherState),
-                    (a, b) -> a && b
-                );
+            for (var condition : conditions()) {
+                if (!condition.test(selfState, otherState)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -99,13 +98,16 @@ public sealed interface ModelConnectionCondition extends BiPredicate<BlockState,
 
         @Override
         public boolean test(BlockState selfState, BlockState otherState) {
-            return conditions()
-                .stream()
-                .reduce(
-                    false,
-                    (base, condition) -> condition.test(selfState, otherState),
-                    (a, b) -> a || b
-                );
+            if (conditions().isEmpty()) {
+                return false;
+            }
+
+            for (var condition : conditions()) {
+                if (condition.test(selfState, otherState)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
