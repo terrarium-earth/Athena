@@ -38,17 +38,17 @@ public class ConnectedTextureMap {
 
         private static final Codec<DirectionalCtmProviders> NON_DIRECTIONAL_CODEC = CtmProvider.Type.CODEC.flatComapMap(
             DirectionalCtmProviders::new,
-            (providers) -> providers.defaultProvider().isPresent() && providers.directions().isEmpty() ?
+            providers -> providers.defaultProvider().isPresent() && providers.directions().isEmpty() ?
                 DataResult.success(providers.defaultProvider().get()) :
                 DataResult.error(() -> "Can not encode DirectionalCtmProviders to a single provider when default provider isn't present or there are directional providers defined")
         );
 
         private static final Codec<Optional<Direction>> OPTIONAL_DIRECTION_CODEC = Codec.either(
             Codec.STRING.comapFlatMap(
-                (value) -> value.equals(OPTIONAL_KEY) ?
+                value -> value.equals(OPTIONAL_KEY) ?
                     DataResult.success(Optional.<Direction>empty()) :
                     DataResult.error(() -> "Expected '" + OPTIONAL_KEY + "', got '" + value + "'"),
-                (unit) -> OPTIONAL_KEY
+                _ -> OPTIONAL_KEY
             ),
             Direction.CODEC.xmap(Optional::of, Optional::get)
         ).xmap(Either::unwrap, (optional) -> optional.isEmpty() ? Either.left(optional) : Either.right(optional));

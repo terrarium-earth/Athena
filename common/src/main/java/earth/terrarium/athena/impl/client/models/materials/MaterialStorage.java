@@ -17,7 +17,11 @@ public class MaterialStorage {
     private final AtomicInteger id = new AtomicInteger(0);
 
     public int put(String material) {
-        return this.put(new Material(Identifier.parse(material)));
+        return this.put(Identifier.parse(material));
+    }
+
+    public int put(Identifier material) {
+        return this.put(new Material(material));
     }
 
     public int put(Material material) {

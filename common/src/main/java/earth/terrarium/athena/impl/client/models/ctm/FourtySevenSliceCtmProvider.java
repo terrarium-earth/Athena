@@ -1,11 +1,13 @@
 package earth.terrarium.athena.impl.client.models.ctm;
 
 import com.google.common.base.Preconditions;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import earth.terrarium.athena.api.client.models.AthenaQuad;
 import earth.terrarium.athena.api.client.utils.CtmState;
 import earth.terrarium.athena.impl.client.models.materials.MaterialStorage;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -18,8 +20,11 @@ public record FourtySevenSliceCtmProvider(
         DataResult.success(value) :
         DataResult.error(() -> "String " + value + " is not a 47 slice string.")
     );
+    private static final Codec<Identifier> SLICE_47_IDENTIFIER = Identifier.CODEC.validate(
+            it -> it.getPath().startsWith("athena/ctm_full/") ? DataResult.success(it) : DataResult.error(() -> "Identifier '%s' must be in the athena/ctm_full/ namespace".formatted(it.toString()))
+    );
 
-    public static final Codec<FourtySevenSliceCtmProvider.Type> CODEC = SLICE_47_STRING.xmap(Type::new, Type::texture);
+    public static final Codec<FourtySevenSliceCtmProvider.Type> CODEC = Codec.either(SLICE_47_STRING, SLICE_47_IDENTIFIER).xmap(Type::new, Type::texture);
 
     private static final int EXPECTED_SPRITES = 47;
     private static final int[] BIT_TO_INDEX = new int[]{
@@ -64,13 +69,17 @@ public record FourtySevenSliceCtmProvider(
         return bits;
     }
 
-    public record Type(String texture) implements CtmProvider.Type {
+    public record Type(Either<String, Identifier> texture) implements CtmProvider.Type {
         @Override
         public CtmProvider build(MaterialStorage materials) {
             int[] sprites = new int[47];
 
             for (int i = 0; i < sprites.length; i++) {
-                sprites[i] = materials.put(texture.replace(SLICE_47_KEY, String.valueOf(i)));
+                final int index = i;
+                sprites[i] = materials.put(texture.<Identifier>map(
+                        it -> Identifier.parse(it.replace(SLICE_47_KEY, String.valueOf(index))),
+                        it -> it.withSuffix("/" + index)
+                ));
             }
 
             return new FourtySevenSliceCtmProvider(sprites);

@@ -1,1 +1,3 @@
-- Fixed vertex winding on neoforge
+- Add support for auto splitting of 4 slice and 47 slice textures.
+  - For 4 slice textures put them in textures/athena/ctm and for 47 slice textures put them in textures/athena/full_ctm
+  - For 4 slice texture references use base and ctm keys and for 47 slice instead of an indexed key use the full identifier.
