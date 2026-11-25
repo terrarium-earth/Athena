@@ -35,7 +35,7 @@ public abstract class AthenaModelProvider implements DataProvider {
         gather();
 
         ImmutableList.Builder<CompletableFuture<?>> futuresBuilder = new ImmutableList.Builder<>();
-        Path outputFolder = output.getOutputFolder(PackOutput.Target.DATA_PACK);
+        Path outputFolder = output.getOutputFolder(PackOutput.Target.RESOURCE_PACK);
 
         for (var entry : models.entrySet()) {
             var block = entry.getKey();
