@@ -32,9 +32,9 @@ public record CtmMaterials(
         Material.CODEC.fieldOf("empty").forGetter(CtmMaterials::empty)
     ).apply(instance, CtmMaterials::new));
 
-    public static final MapCodec<CtmMaterials> CODEC = Codec.mapEither(SIMPLE_CODEC, FULL_CODEC).xmap(Either::unwrap, Either::right);
+    public static final MapCodec<CtmMaterials> CODEC = Codec.mapEither(FULL_CODEC, SIMPLE_CODEC).xmap(Either::unwrap, Either::left);
 
-    private CtmMaterials(Material particle, Material ctm) {
+    public CtmMaterials(Material particle, Material ctm) {
         this(particle, ctm.withSuffix("/center"), ctm.withSuffix("/vertical"), ctm.withSuffix("/horizontal"), ctm.withSuffix("/empty"));
     }
 }
