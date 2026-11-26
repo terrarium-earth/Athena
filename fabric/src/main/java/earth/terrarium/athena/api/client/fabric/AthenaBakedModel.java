@@ -146,7 +146,7 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
 
                 int lightEmission = attributes.getLightEmission();
                 int packedLight = LightCoordsUtil.pack(lightEmission, lightEmission);
-                emitter.lightmap(packedLight, lightEmission, lightEmission, lightEmission);
+                emitter.lightmap(packedLight, packedLight, packedLight, packedLight);
 
                 emitter.emissive(lightEmission == 15);
 
