@@ -3,9 +3,9 @@ package earth.terrarium.athena.impl.loading;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
 import earth.terrarium.athena.api.client.models.AthenaBlockModel;
 import earth.terrarium.athena.api.client.models.AthenaModelType;
 import earth.terrarium.athena.api.client.models.FactoryManager;
@@ -35,12 +35,12 @@ public class AthenaResourceLoader extends SimpleJsonResourceReloadListener<@NotN
 
     public static final String KEY = DefaultModels.MODID + ":loader";
 
-    private static final Codec<AthenaBlockModel> CODEC_FOR_BLOCK_STATES = Identifier.CODEC
+    public static final MapCodec<AthenaBlockModel> CODEC_FOR_BLOCK_STATES = Identifier.CODEC
         .comapFlatMap(
             it -> Optionull.mapOrElse(getTypeForBlockStates(it), DataResult::success, () -> DataResult.error(() -> "Unknown loader: " + it)),
             FactoryManager::getTypeId
         )
-        .dispatch(
+        .dispatchMap(
             KEY,
             AthenaBlockModel::type,
             AthenaModelType::codec
@@ -76,9 +76,10 @@ public class AthenaResourceLoader extends SimpleJsonResourceReloadListener<@NotN
     private static AthenaUnbakedModel tryLoad(
         JsonElement json,
         BlockState state,
-        Codec<AthenaBlockModel> codec
+        MapCodec<AthenaBlockModel> codec
     ) {
         AthenaBlockModel model = codec
+            .codec()
             .parse(JsonOps.INSTANCE, json)
             .ifError((error) -> LOGGER.error("Failed to load Athena model for {}. {}", state, error))
             .result()
@@ -97,7 +98,7 @@ public class AthenaResourceLoader extends SimpleJsonResourceReloadListener<@NotN
         var modelData = INSTANCE.data.get(id);
 
         if (modelData != null) {
-            return tryLoad(modelData, state, AthenaBlockModel.CODEC.codec());
+            return tryLoad(modelData, state, AthenaBlockModel.CODEC);
         }
 
         JsonObject blockStateData = INSTANCE.blockstateData.get(id);
