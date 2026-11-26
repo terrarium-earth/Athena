@@ -29,6 +29,9 @@ public interface AthenaBlockModel {
 
     AthenaModelType type();
 
+    /**
+     * @deprecated Use {@link Part#getQuads} instead
+     */
     @Deprecated(forRemoval = true)
     @ApiStatus.ScheduledForRemoval(inVersion = "26.4")
     default List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction) {
@@ -40,6 +43,7 @@ public interface AthenaBlockModel {
      *
      * @param direction The direction to get the quads for or null if the quads are not cullable
      * @return The default quads for this model
+     * @deprecated Use {@link Part#getDefaultQuads} instead
      */
     @Deprecated(forRemoval = true)
     @ApiStatus.ScheduledForRemoval(inVersion = "26.4")
@@ -47,22 +51,41 @@ public interface AthenaBlockModel {
         return Map.of();
     }
 
+    /**
+     * @deprecated Use {@link Part#getTextures} instead
+     */
     @Deprecated(forRemoval = true)
     @ApiStatus.ScheduledForRemoval(inVersion = "26.4")
     default Int2ObjectMap<Material.Baked> getTextures(Function<Material, Material.Baked> getter) {
         return Int2ObjectMap.ofEntries();
     }
 
+    /**
+     * @deprecated Use {@link Part#getAttributes} instead
+     */
     @Deprecated(forRemoval = true)
     @ApiStatus.ScheduledForRemoval(inVersion = "26.4")
     default AthenaModelAttributes getAttributes() {
         return AthenaModelAttributes.EMPTY;
     }
 
+    /**
+     * Select 1 or more {@link Part} to render, parts this method select must have been chosen as possible before via {@link collectPossibleParts}
+     *
+     * @param random The positional random to select the parts based on
+     * @param state The block state to select parts for
+     * @param output Select a part to be rendered
+     */
     default void selectParts(RandomSource random, BlockState state, Consumer<Part> output) {
         output.accept(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this));
     }
 
+    /**
+     * Return every possible {@link Part} that this model can select via the {@link Consumer<Part>} output in {@link selectParts}
+     *
+     * @param state The block state to select the possible parts for
+     * @param parts The output for which parts can possibly be selected
+     */
     default void collectPossibleParts(BlockState state, Consumer<Part> parts) {
         parts.accept(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this));
     }
@@ -71,7 +94,7 @@ public interface AthenaBlockModel {
         List<AthenaQuad> getQuads(AppearanceAndTintGetter level, BlockState state, BlockPos pos, Direction direction);
 
         /**
-         * Returns the default quads for this model. These quads will be rendered if the model does not have any quads for
+         * Returns the default quads for this model part. These quads will be rendered if the part does not have any quads for
          *
          * @param direction The direction to get the quads for or null if the quads are not cullable
          * @return The default quads for this model
