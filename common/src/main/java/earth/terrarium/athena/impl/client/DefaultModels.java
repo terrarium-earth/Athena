@@ -23,6 +23,7 @@ public class DefaultModels {
         FactoryManager.register(id("limited_pillar"), LimitedPillarBlockModel.TYPE);
         FactoryManager.register(id("pane_pillar"), PanePillarBlockModel.TYPE);
         FactoryManager.register(id("variants"), MultiVariantBlockModel.TYPE);
+        FactoryManager.register(id("composite"), AthenaCompositeModel.TYPE);
 
         ModelConnectionCondition.CONDITION_TYPES.put("not", ModelConnectionCondition.Not.CODEC);
         ModelConnectionCondition.CONDITION_TYPES.put("and", ModelConnectionCondition.And.CODEC);

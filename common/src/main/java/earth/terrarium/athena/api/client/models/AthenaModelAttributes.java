@@ -15,7 +15,7 @@ public class AthenaModelAttributes {
         ).apply(instance, AthenaModelAttributes::new)
     );
 
-    public static final AthenaModelAttributes EMPTY = new AthenaModelAttributes(Optional.empty(), 0);
+    public static final AthenaModelAttributes EMPTY = new AthenaModelAttributes(Optional.empty());
 
     private final Optional<TintProvider> tint;
     private final int lightEmission;
@@ -23,6 +23,10 @@ public class AthenaModelAttributes {
     public AthenaModelAttributes(Optional<TintProvider> tint, int lightEmission) {
         this.tint = tint;
         this.lightEmission = lightEmission;
+    }
+
+    public AthenaModelAttributes(Optional<TintProvider> tint) {
+        this(tint, 0);
     }
 
     public @Nullable TintProvider getTint() {
