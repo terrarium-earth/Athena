@@ -88,14 +88,14 @@ public class MultiVariantBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public <T> void selectParts(RandomSource random, BlockState state, Map<Part, T> bakedParts, Consumer<T> output) {
+    public void selectParts(RandomSource random, BlockState state, Consumer<Part> output) {
         WeightedList<AthenaBlockModel> weightedModels = this.resolvedParts(state.getBlock()).get(state);
 
         if (weightedModels == null) {
             return;
         }
 
-        weightedModels.getRandomOrThrow(random).selectParts(random, state, bakedParts, output);
+        weightedModels.getRandomOrThrow(random).selectParts(random, state, output);
     }
 
     @Override

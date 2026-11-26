@@ -59,8 +59,8 @@ public interface AthenaBlockModel {
         return AthenaModelAttributes.EMPTY;
     }
 
-    default <T> void selectParts(RandomSource random, BlockState state, Map<Part, T> bakedParts, Consumer<T> output) {
-        output.accept(bakedParts.get(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this)));
+    default void selectParts(RandomSource random, BlockState state, Consumer<Part> output) {
+        output.accept(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this));
     }
 
     default void collectPossibleParts(Consumer<Part> parts) {

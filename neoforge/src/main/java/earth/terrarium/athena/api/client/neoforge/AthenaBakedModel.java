@@ -67,30 +67,33 @@ public class AthenaBakedModel implements BlockStateModel {
 
     @Override
     public void collectParts(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull List<BlockStateModelPart> parts) {
-        this.model.selectParts(random, this.state, this.bakedParts, (part) -> parts.add(
-                new AthenaModelPart(
-                    part,
-                    collectDirectionQuads(
-                        part,
-                        level,
-                        pos,
-                        state,
-                        random
-                    ),
-                    part.materials,
-                    part.attributes.getTint()
-                )
-            )
+        this.model.selectParts(random, this.state, (part) -> {
+                var baked = this.bakedParts.get(part);
+                parts.add(
+                    new AthenaModelPart(
+                        baked,
+                        collectDirectionQuads(
+                            part,
+                            level,
+                            pos,
+                            state,
+                            random
+                        ),
+                        baked.materials,
+                        baked.attributes.getTint()
+                    )
+                );
+            }
         );
     }
 
     @Override
     public void collectParts(@NotNull RandomSource arg, @NotNull List<BlockStateModelPart> list) {
-        this.model.selectParts(arg, this.state, this.bakedParts, list::add);
+        this.model.selectParts(arg, this.state, part -> list.add(this.bakedParts.get(part)));
     }
 
     private NullableEnumMap<Direction, Map<Direction, List<AthenaQuad>>> collectDirectionQuads(
-        @NotNull BakedPart part,
+        @NotNull AthenaBlockModel.Part part,
         @NotNull BlockAndTintGetter level,
         @NotNull BlockPos pos,
         @NotNull BlockState state,
@@ -102,7 +105,7 @@ public class AthenaBakedModel implements BlockStateModel {
         for (Direction direction : DIRECTIONS) {
             List<AthenaQuad> culledQuads = new ArrayList<>();
             List<AthenaQuad> unculledQuads = new ArrayList<>();
-            for (AthenaQuad quad : part.part.getQuads(getter, state, pos, direction)) {
+            for (AthenaQuad quad : part.getQuads(getter, state, pos, direction)) {
                 if (quad.cull()) {
                     culledQuads.add(quad);
                 } else {
@@ -120,9 +123,9 @@ public class AthenaBakedModel implements BlockStateModel {
 
     @Override
     public @NotNull Object createGeometryKey(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random) {
-        List<BakedPart> parts = new ArrayList<>();
+        List<AthenaBlockModel.Part> parts = new ArrayList<>();
 
-        this.model.selectParts(random, this.state, this.bakedParts, parts::add);
+        this.model.selectParts(random, this.state, parts::add);
 
         return parts;
     }

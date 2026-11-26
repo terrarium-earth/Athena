@@ -80,15 +80,15 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
         for (Direction side : DIRECTIONS) {
             if (cullTest.test(side)) continue;
 
-            model.selectParts(random, this.state, this.bakedParts, (part) ->
-                part.emitQuads(emitter, side, part.part.getQuads(getter, state, pos, side))
+            model.selectParts(random, this.state, (part) ->
+                this.bakedParts.get(part).emitQuads(emitter, side, part.getQuads(getter, state, pos, side))
             );
         }
     }
 
     @Override
     public void collectParts(@NotNull RandomSource randomSource, List<BlockStateModelPart> list) {
-        model.selectParts(randomSource, this.state, this.bakedParts, list::add);
+        model.selectParts(randomSource, this.state, (part) -> list.add(this.bakedParts.get(part)));
     }
 
     @Override
