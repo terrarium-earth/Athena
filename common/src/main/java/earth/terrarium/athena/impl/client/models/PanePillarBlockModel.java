@@ -24,7 +24,7 @@ import java.util.function.Function;
 public class PanePillarBlockModel implements AthenaBlockModel {
 
     public static final MapCodec<PanePillarBlockModel> CODEC = Materials.CODEC.fieldOf("ctm_textures").xmap(PanePillarBlockModel::new, (model) -> model.materials);
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private static final List<AthenaQuad> MIDDLE = List.of(new AthenaQuad(6, 0.4375f, 0.5625f, 1f, 0f, Rotation.NONE, 0.4375f));
 

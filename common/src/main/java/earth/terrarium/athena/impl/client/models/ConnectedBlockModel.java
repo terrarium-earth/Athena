@@ -32,7 +32,7 @@ public class ConnectedBlockModel implements AthenaBlockModel {
         AthenaModelAttributes.TINT_CODEC.forGetter((model) -> model.attributes)
     ).apply(instance, ConnectedBlockModel::new));
 
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private final MaterialStorage materials;
     private final ConnectedTextureMap textures;

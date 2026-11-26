@@ -144,7 +144,7 @@ public class AthenaResourceLoader extends SimpleJsonResourceReloadListener<@NotN
     private static AthenaModelType getTypeForBlockStates(Identifier id) {
         AthenaModelType type = FactoryManager.getType(id);
 
-        if (!type.allowedInBlockStates()) {
+        if (type.disallowedInBlockStates()) {
             return null;
         }
 

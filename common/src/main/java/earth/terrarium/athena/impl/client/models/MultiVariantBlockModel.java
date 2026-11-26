@@ -42,7 +42,7 @@ public class MultiVariantBlockModel implements AthenaBlockModel {
             .fieldOf("variants")
             .xmap(MultiVariantBlockModel::new, (model) -> model.variants);
 
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
 
     private final Map<String, WeightedList<AthenaBlockModel>> variants;
     private Map<BlockState, WeightedList<AthenaBlockModel>> resolvedModels;
