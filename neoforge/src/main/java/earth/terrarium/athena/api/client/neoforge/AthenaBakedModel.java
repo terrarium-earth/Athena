@@ -67,8 +67,9 @@ public class AthenaBakedModel implements BlockStateModel {
 
     @Override
     public void collectParts(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull List<BlockStateModelPart> parts) {
-        this.model.selectParts(random, this.state, (part) -> {
+        this.model.selectParts(random, state, (part) -> {
                 var baked = this.bakedParts.get(part);
+
                 parts.add(
                     new AthenaModelPart(
                         baked,
@@ -76,8 +77,7 @@ public class AthenaBakedModel implements BlockStateModel {
                             part,
                             level,
                             pos,
-                            state,
-                            random
+                            state
                         ),
                         baked.materials,
                         baked.attributes.getTint()
@@ -96,8 +96,7 @@ public class AthenaBakedModel implements BlockStateModel {
         @NotNull AthenaBlockModel.Part part,
         @NotNull BlockAndTintGetter level,
         @NotNull BlockPos pos,
-        @NotNull BlockState state,
-        @NotNull RandomSource random
+        @NotNull BlockState state
     ) {
         var getter = new WrappedGetter(level);
         var quads = new NullableEnumMap<Direction, Map<Direction, List<AthenaQuad>>>(Direction.class);
@@ -125,7 +124,7 @@ public class AthenaBakedModel implements BlockStateModel {
     public @NotNull Object createGeometryKey(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random) {
         List<AthenaBlockModel.Part> parts = new ArrayList<>();
 
-        this.model.selectParts(random, this.state, parts::add);
+        this.model.selectParts(random, state, parts::add);
 
         return parts;
     }
