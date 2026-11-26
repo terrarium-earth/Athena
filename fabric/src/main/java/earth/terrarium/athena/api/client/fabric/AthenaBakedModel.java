@@ -54,7 +54,7 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
         MutableInt materialFlags = new MutableInt();
         MutableObject<Material.Baked> particleMaterial = new MutableObject<>();
 
-        model.collectPossibleParts((part) -> {
+        model.collectPossibleParts(state, (part) -> {
             var bakedPart = new BakedPart(part, materialBaker);
 
             if (particleMaterial.get() == null) {

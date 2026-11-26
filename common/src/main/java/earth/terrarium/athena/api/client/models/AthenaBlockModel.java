@@ -63,7 +63,7 @@ public interface AthenaBlockModel {
         output.accept(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this));
     }
 
-    default void collectPossibleParts(Consumer<Part> parts) {
+    default void collectPossibleParts(BlockState state, Consumer<Part> parts) {
         parts.accept(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this));
     }
 

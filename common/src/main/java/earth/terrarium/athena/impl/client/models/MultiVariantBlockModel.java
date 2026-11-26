@@ -99,11 +99,15 @@ public class MultiVariantBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public void collectPossibleParts(Consumer<Part> parts) {
-        for (var model : this.variants.values()) {
-            for (var weightedParts : model.unwrap()) {
-                weightedParts.value().collectPossibleParts(parts);
-            }
+    public void collectPossibleParts(BlockState state, Consumer<Part> parts) {
+        WeightedList<AthenaBlockModel> weightedModels = resolvedParts(state.getBlock()).get(state);
+
+        if (weightedModels == null) {
+            return;
+        }
+
+        for (var weightedParts : weightedModels.unwrap()) {
+            weightedParts.value().collectPossibleParts(state, parts);
         }
     }
 }
