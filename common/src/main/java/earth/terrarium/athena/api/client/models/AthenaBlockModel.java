@@ -70,24 +70,24 @@ public interface AthenaBlockModel {
     }
 
     /**
-     * Select 1 or more {@link Part} to render, parts this method select must have been chosen as possible before via {@link collectPossibleParts}
+     * Select 1 or more {@link Part} to render, parts this method select must have been chosen as possible before via {@link getAllParts}
      *
      * @param random The positional random to select the parts based on
-     * @param state The block state to select parts for
-     * @param output Select a part to be rendered
+     * @param state  The block state to select parts for
+     * @return The parts to be rendered
      */
-    default void selectParts(RandomSource random, BlockState state, Consumer<Part> output) {
-        output.accept(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this));
+    default List<Part> selectParts(RandomSource random, BlockState state) {
+        return AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this);
     }
 
     /**
-     * Return every possible {@link Part} that this model can select via the {@link Consumer<Part>} output in {@link selectParts}
+     * Return every {@link Part} that this model can select via the {@link Consumer<Part>} output in {@link selectParts}
      *
      * @param state The block state to select the possible parts for
-     * @param parts The output for which parts can possibly be selected
+     * @return The parts which can be selected
      */
-    default void collectPossibleParts(BlockState state, Consumer<Part> parts) {
-        parts.accept(AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this));
+    default List<Part> getAllParts(BlockState state) {
+        return AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this);
     }
 
     interface Part {

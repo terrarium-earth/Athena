@@ -23,7 +23,7 @@ import java.util.Objects;
 @ApiStatus.Internal
 public class ForgeAthenaUtils {
 
-    public static BakedQuad bakeQuad(AthenaQuad quad, Direction direction, Material.Baked material, TintProvider tint) {
+    public static BakedQuad bakeQuad(AthenaQuad quad, Direction direction, Material.Baked material, TintProvider tint, int lightEmission) {
         final var sprite = material.sprite();
         final var start = getStartPos(quad, direction);
         final var end = getEndPos(quad, direction);
@@ -54,7 +54,7 @@ public class ForgeAthenaUtils {
                 transparency,
                 tint instanceof TintProvider.Index(var index) ? index : -1,
                 null,
-                0,
+                lightEmission,
                 true
         );
         final var colors = tint instanceof TintProvider.Static(var color) ? new BakedColors.PerQuad(color) : BakedColors.DEFAULT;

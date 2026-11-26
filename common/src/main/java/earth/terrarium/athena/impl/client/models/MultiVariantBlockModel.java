@@ -13,9 +13,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class MultiVariantBlockModel implements AthenaBlockModel {
@@ -44,15 +45,15 @@ public class MultiVariantBlockModel implements AthenaBlockModel {
     public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private final Map<String, WeightedList<AthenaBlockModel>> variants;
-    private Map<BlockState, WeightedList<AthenaBlockModel>> resolvedVariantParts;
+    private Map<BlockState, WeightedList<AthenaBlockModel>> resolvedModels;
 
     public MultiVariantBlockModel(Map<String, WeightedList<AthenaBlockModel>> variants) {
         this.variants = variants;
     }
 
-    private Map<BlockState, WeightedList<AthenaBlockModel>> resolvedParts(Block block) {
-        if (this.resolvedVariantParts != null) {
-            return this.resolvedVariantParts;
+    private Map<BlockState, WeightedList<AthenaBlockModel>> resolvedModels(Block block) {
+        if (this.resolvedModels != null) {
+            return this.resolvedModels;
         }
 
         Map<BlockState, WeightedList<AthenaBlockModel>> resolvedVariants = new HashMap<>();
@@ -77,9 +78,13 @@ public class MultiVariantBlockModel implements AthenaBlockModel {
             }
         }
 
-        this.resolvedVariantParts = resolvedVariants;
+        this.resolvedModels = resolvedVariants;
 
         return resolvedVariants;
+    }
+
+    private WeightedList<AthenaBlockModel> getModels(BlockState state) {
+        return resolvedModels(state.getBlock()).get(state);
     }
 
     @Override
@@ -88,26 +93,29 @@ public class MultiVariantBlockModel implements AthenaBlockModel {
     }
 
     @Override
-    public void selectParts(RandomSource random, BlockState state, Consumer<Part> output) {
-        WeightedList<AthenaBlockModel> weightedModels = this.resolvedParts(state.getBlock()).get(state);
+    public List<Part> selectParts(RandomSource random, BlockState state) {
+        WeightedList<AthenaBlockModel> weightedModels = getModels(state);
 
         if (weightedModels == null) {
-            return;
+            return List.of();
         }
 
-        weightedModels.getRandomOrThrow(random).selectParts(random, state, output);
+        return weightedModels.getRandomOrThrow(random).selectParts(random, state);
     }
 
     @Override
-    public void collectPossibleParts(BlockState state, Consumer<Part> parts) {
-        WeightedList<AthenaBlockModel> weightedModels = resolvedParts(state.getBlock()).get(state);
+    public List<Part> getAllParts(BlockState state) {
+        WeightedList<AthenaBlockModel> weightedModels = getModels(state);
 
         if (weightedModels == null) {
-            return;
+            return List.of();
         }
 
+        List<Part> parts = new ArrayList<>();
         for (var weightedParts : weightedModels.unwrap()) {
-            weightedParts.value().collectPossibleParts(state, parts);
+            parts.addAll(weightedParts.value().getAllParts(state));
         }
+
+        return parts;
     }
 }

@@ -16,8 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,23 +40,23 @@ public class AthenaBakedModel implements BlockStateModel {
         this.state = state;
         this.model = model;
 
-        MutableInt materialFlags = new MutableInt();
-        MutableObject<Material.Baked> particleMaterial = new MutableObject<>();
+        int materialFlags = 0;
+        Material.Baked particleMaterial = null;
 
-        model.collectPossibleParts(state, (part) -> {
+        for (AthenaBlockModel.Part part : model.getAllParts(state)) {
             var bakedPart = new BakedPart(part, materialBaker);
 
-            if (particleMaterial.get() == null) {
-                particleMaterial.setValue(bakedPart.particleMaterial());
+            if (particleMaterial == null) {
+                particleMaterial = bakedPart.particleMaterial();
             }
 
-            materialFlags.setValue(materialFlags.intValue() | bakedPart.materialFlags());
+            materialFlags |= bakedPart.materialFlags();
 
             bakedParts.put(part, bakedPart);
-        });
+        }
 
-        this.materialFlags = materialFlags.intValue();
-        this.particleMaterial = particleMaterial.get();
+        this.materialFlags = materialFlags;
+        this.particleMaterial = particleMaterial;
     }
 
     public static AthenaUnbakedModel unbaked(BlockState state, AthenaBlockModel model) {
@@ -67,29 +65,31 @@ public class AthenaBakedModel implements BlockStateModel {
 
     @Override
     public void collectParts(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull List<BlockStateModelPart> parts) {
-        this.model.selectParts(random, state, (part) -> {
-                var baked = this.bakedParts.get(part);
+        for (AthenaBlockModel.Part part : this.model.selectParts(random, state)) {
+            var baked = this.bakedParts.get(part);
 
-                parts.add(
-                    new AthenaModelPart(
-                        baked,
-                        collectDirectionQuads(
+            parts.add(
+                new AthenaModelPart(
+                    baked,
+                    collectDirectionQuads(
                             part,
                             level,
                             pos,
                             state
-                        ),
-                        baked.materials,
-                        baked.attributes.getTint()
-                    )
-                );
-            }
-        );
+                    ),
+                    baked.materials,
+                    baked.attributes.getTint(),
+                    baked.attributes.getLightEmission()
+                )
+            );
+        }
     }
 
     @Override
     public void collectParts(@NotNull RandomSource arg, @NotNull List<BlockStateModelPart> list) {
-        this.model.selectParts(arg, this.state, part -> list.add(this.bakedParts.get(part)));
+        for (AthenaBlockModel.Part part : this.model.selectParts(arg, this.state)) {
+            list.add(this.bakedParts.get(part));
+        }
     }
 
     private NullableEnumMap<Direction, Map<Direction, List<AthenaQuad>>> collectDirectionQuads(
@@ -122,11 +122,7 @@ public class AthenaBakedModel implements BlockStateModel {
 
     @Override
     public @NotNull Object createGeometryKey(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random) {
-        List<AthenaBlockModel.Part> parts = new ArrayList<>();
-
-        this.model.selectParts(random, state, parts::add);
-
-        return parts;
+        return this.model.selectParts(random, state);
     }
 
     @Override
@@ -163,11 +159,12 @@ public class AthenaBakedModel implements BlockStateModel {
 
                 var defaults = this.part.getDefaultQuads(direction);
                 var tint = attributes.getTint();
+                var lightEmission = attributes.getLightEmission();
                 for (var entry : defaults.entrySet()) {
                     for (var quad : entry.getValue()) {
                         var material = materials.get(quad.sprite());
                         if (material == null) continue;
-                        quads.add(ForgeAthenaUtils.bakeQuad(quad, entry.getKey(), material, tint));
+                        quads.add(ForgeAthenaUtils.bakeQuad(quad, entry.getKey(), material, tint, lightEmission));
                     }
                 }
 

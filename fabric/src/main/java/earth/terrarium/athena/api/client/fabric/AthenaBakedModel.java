@@ -21,10 +21,9 @@ import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
@@ -51,23 +50,23 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
         this.state = state;
         this.model = model;
 
-        MutableInt materialFlags = new MutableInt();
-        MutableObject<Material.Baked> particleMaterial = new MutableObject<>();
+        int materialFlags = 0;
+        Material.Baked particleMaterial = null;
 
-        model.collectPossibleParts(state, (part) -> {
+        for (AthenaBlockModel.Part part : model.getAllParts(state)) {
             var bakedPart = new BakedPart(part, materialBaker);
 
-            if (particleMaterial.get() == null) {
-                particleMaterial.setValue(bakedPart.particleMaterial());
+            if (particleMaterial == null) {
+                particleMaterial = bakedPart.particleMaterial();
             }
 
-            materialFlags.setValue(materialFlags.intValue() | bakedPart.materialFlags());
+            materialFlags |= bakedPart.materialFlags();
 
             bakedParts.put(part, bakedPart);
-        });
+        }
 
-        this.materialFlags = materialFlags.intValue();
-        this.particleMaterial = particleMaterial.get();
+        this.materialFlags = materialFlags;
+        this.particleMaterial = particleMaterial;
     }
 
     public static AthenaUnbakedModel unbaked(BlockState state, AthenaBlockModel model) {
@@ -77,21 +76,22 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
     @Override
     public void emitQuads(@NotNull QuadEmitter emitter, @NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull Predicate<@Nullable Direction> cullTest) {
         WrappedGetter getter = new WrappedGetter(level);
-        List<BakedPart> parts = new ArrayList<>();
-        model.selectParts(random, state, (part) -> parts.add(this.bakedParts.get(part)));
+        List<AthenaBlockModel.Part> parts = model.selectParts(random, state);
 
         for (Direction side : DIRECTIONS) {
             if (cullTest.test(side)) continue;
 
-            for (BakedPart part : parts) {
-                part.emitQuads(emitter, side, part.part.getQuads(getter, state, pos, side));
+            for (AthenaBlockModel.Part part : parts) {
+                this.bakedParts.get(part).emitQuads(emitter, side, part.getQuads(getter, state, pos, side));
             }
         }
     }
 
     @Override
     public void collectParts(@NotNull RandomSource randomSource, List<BlockStateModelPart> list) {
-        model.selectParts(randomSource, this.state, (part) -> list.add(this.bakedParts.get(part)));
+        for (AthenaBlockModel.Part part : model.selectParts(randomSource, this.state)) {
+            list.add(this.bakedParts.get(part));
+        }
     }
 
     @Override
@@ -143,6 +143,12 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
                     case TintProvider.Static(var color) -> emitter.color(color, color, color, color);
                     case null -> {}
                 }
+
+                int lightEmission = attributes.getLightEmission();
+                int packedLight = LightCoordsUtil.pack(lightEmission, lightEmission);
+                emitter.lightmap(packedLight, lightEmission, lightEmission, lightEmission);
+
+                emitter.emissive(lightEmission == 15);
 
                 emitter.emit();
             }
