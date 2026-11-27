@@ -20,7 +20,7 @@ import java.util.function.Function;
 public class LimitedPillarBlockModel implements AthenaBlockModel {
 
     public static final MapCodec<LimitedPillarBlockModel> CODEC = PillarMaterials.CODEC.fieldOf("ctm_textures").xmap(LimitedPillarBlockModel::new, (model) -> model.materials);
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private static final List<AthenaQuad> CENTER = List.of(AthenaQuad.withSprite(2));
     private static final List<AthenaQuad> TOP = List.of(AthenaQuad.withSprite(1));

@@ -21,33 +21,50 @@ import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel {
 
     private static final Direction[] DIRECTIONS = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN};
+    private static final float DEPTH_OFFSET = 0.001f;
 
+    private final Map<AthenaBlockModel.Part, BakedPart> bakedParts = new HashMap<>();
+
+    private final BlockState state;
     private final AthenaBlockModel model;
-    private final Int2ObjectMap<Material.Baked> materials;
-    private final AthenaModelAttributes attributes;
-    private final BlockStateModelMaterialInfo info;
-    private final BlockStateModelPart part;
+    private final int materialFlags;
+    private final Material.Baked particleMaterial;
 
-    private AthenaBakedModel(BlockState state, AthenaBlockModel model, Function<Material, Material.Baked> function) {
+    private AthenaBakedModel(BlockState state, AthenaBlockModel model, Function<Material, Material.Baked> materialBaker) {
+        this.state = state;
         this.model = model;
-        this.materials = this.model.getTextures(function, state);
-        this.attributes = model.getAttributes(state);
-        this.info = new BlockStateModelMaterialInfo(this.materials);
-        this.part = new Part(state);
+
+        int materialFlags = 0;
+        Material.Baked particleMaterial = null;
+
+        for (AthenaBlockModel.Part part : model.getAllParts(state)) {
+            var bakedPart = new BakedPart(part, materialBaker);
+
+            if (particleMaterial == null) {
+                particleMaterial = bakedPart.particleMaterial();
+            }
+
+            materialFlags |= bakedPart.materialFlags();
+
+            bakedParts.put(part, bakedPart);
+        }
+
+        this.materialFlags = materialFlags;
+        this.particleMaterial = particleMaterial;
     }
 
     public static AthenaUnbakedModel unbaked(BlockState state, AthenaBlockModel model) {
@@ -57,63 +74,85 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
     @Override
     public void emitQuads(@NotNull QuadEmitter emitter, @NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull Predicate<@Nullable Direction> cullTest) {
         WrappedGetter getter = new WrappedGetter(level);
-        for (Direction value : DIRECTIONS) {
-            if (cullTest.test(value)) continue;
+        List<AthenaBlockModel.Part> parts = model.selectParts(random, state);
 
-            emitQuads(emitter, value, model.getQuads(getter, state, pos, value));
-        }
-    }
+        for (Direction side : DIRECTIONS) {
+            if (cullTest.test(side)) continue;
 
-    private void emitQuads(QuadEmitter emitter, @Nullable Direction side, List<AthenaQuad> quads) {
-        for (var sprite : quads) {
-            var material = this.materials.get(sprite.sprite());
-            if (material == null) {
-                continue;
+            float depthOffset = 0f;
+
+            for (AthenaBlockModel.Part part : parts) {
+                this.bakedParts.get(part).emitQuads(emitter, side, part.getQuads(getter, state, pos, side), depthOffset);
+                depthOffset -= DEPTH_OFFSET;
             }
-            emitter.square(side, sprite.left(), sprite.bottom(), sprite.right(), sprite.top(), sprite.depth());
-
-            int flag = MutableQuadView.BAKE_LOCK_UV;
-
-            switch (sprite.rotation()) {
-                case CLOCKWISE_90 -> flag |= MutableQuadView.BAKE_ROTATE_90;
-                case CLOCKWISE_180 -> flag |= MutableQuadView.BAKE_ROTATE_180;
-                case COUNTERCLOCKWISE_90 -> flag |= MutableQuadView.BAKE_ROTATE_270;
-            }
-
-            emitter.materialBake(material, flag);
-
-            switch (this.attributes.getTint()) {
-                case TintProvider.Index(var index) -> emitter.tintIndex(index);
-                case TintProvider.Static(var color) -> emitter.color(color, color, color, color);
-                case null -> {}
-            }
-
-            emitter.emit();
         }
     }
 
     @Override
     public void collectParts(@NotNull RandomSource randomSource, List<BlockStateModelPart> list) {
-        list.add(this.part);
+        for (AthenaBlockModel.Part part : model.selectParts(randomSource, this.state)) {
+            list.add(this.bakedParts.get(part));
+        }
     }
 
     @Override
     public Material.@NonNull Baked particleMaterial() {
-        return this.part.particleMaterial();
+        return this.particleMaterial;
     }
 
     @Override
     public @BakedQuad.MaterialFlags int materialFlags() {
-        return this.part.materialFlags();
+        return materialFlags;
     }
 
-    private class Part implements BlockStateModelPart {
+    private static class BakedPart implements BlockStateModelPart {
 
         private final NullableEnumMap<Direction, List<BakedQuad>> defaultQuads = new NullableEnumMap<>(Direction.class);
-        private final BlockState state;
 
-        public Part(BlockState state) {
-            this.state = state;
+        private final AthenaBlockModel.Part part;
+        private final BlockStateModelMaterialInfo info;
+        private final Int2ObjectMap<Material.Baked> materials;
+        private final AthenaModelAttributes attributes;
+
+        public BakedPart(AthenaBlockModel.Part part, Function<Material, Material.Baked> materialBaker) {
+            this.part = part;
+            this.materials = part.getTextures(materialBaker);
+            this.attributes = part.getAttributes();
+            this.info = new BlockStateModelMaterialInfo(this.materials);
+        }
+
+        private void emitQuads(QuadEmitter emitter, @Nullable Direction side, List<AthenaQuad> quads, float depthOffset) {
+            for (var sprite : quads) {
+                var material = this.materials.get(sprite.sprite());
+                if (material == null) {
+                    continue;
+                }
+                emitter.square(side, sprite.left(), sprite.bottom(), sprite.right(), sprite.top(), sprite.depth() + depthOffset);
+
+                int flag = MutableQuadView.BAKE_LOCK_UV;
+
+                switch (sprite.rotation()) {
+                    case CLOCKWISE_90 -> flag |= MutableQuadView.BAKE_ROTATE_90;
+                    case CLOCKWISE_180 -> flag |= MutableQuadView.BAKE_ROTATE_180;
+                    case COUNTERCLOCKWISE_90 -> flag |= MutableQuadView.BAKE_ROTATE_270;
+                }
+
+                emitter.materialBake(material, flag);
+
+                switch (this.attributes.getTint()) {
+                    case TintProvider.Index(var index) -> emitter.tintIndex(index);
+                    case TintProvider.Static(var color) -> emitter.color(color, color, color, color);
+                    case null -> {}
+                }
+
+                int lightEmission = attributes.getLightEmission();
+                int packedLight = LightCoordsUtil.pack(lightEmission, lightEmission);
+                emitter.minLightmap(packedLight);
+
+                emitter.emissive(lightEmission == 15);
+
+                emitter.emit();
+            }
         }
 
         @Override
@@ -123,10 +162,11 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
 
                 synchronized (this) {
                     var mesh = Renderer.get().mutableMesh();
-                    AthenaBakedModel.this.emitQuads(
-                            mesh.emitter(),
-                            direction,
-                            AthenaBakedModel.this.model.getDefaultQuads(direction, state).getOrDefault(direction, List.of())
+                    this.emitQuads(
+                        mesh.emitter(),
+                        direction,
+                        this.part.getDefaultQuads(direction).getOrDefault(direction, List.of()),
+                        0f
                     );
 
                     var atlases = Minecraft.getInstance().getAtlasManager();
@@ -158,12 +198,12 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
 
         @Override
         public Material.@NonNull Baked particleMaterial() {
-            return AthenaBakedModel.this.info.getParticle();
+            return info.getParticle();
         }
 
         @Override
         public @BakedQuad.MaterialFlags int materialFlags() {
-            return AthenaBakedModel.this.info.getFlags();
+            return info.getFlags();
         }
     }
 }

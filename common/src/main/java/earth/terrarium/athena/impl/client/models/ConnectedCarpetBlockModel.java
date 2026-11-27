@@ -30,7 +30,7 @@ public class ConnectedCarpetBlockModel implements AthenaBlockModel {
         ModelConnectionCondition.CONNECTS_TO_CODEC.forGetter((model) -> model.connectTo)
     ).apply(instance, ConnectedCarpetBlockModel::new));
 
-    public static final AthenaModelType TYPE = new AthenaModelType(CODEC, true);
+    public static final AthenaModelType TYPE = new AthenaModelType(CODEC);
 
     private static final float PIXELS_15 = 15f / 16f;
     private static final float PIXELS_1 = 1f / 16f;

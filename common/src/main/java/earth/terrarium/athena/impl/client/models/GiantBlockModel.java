@@ -23,8 +23,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class GiantBlockModel implements AthenaBlockModel {
-    public static final AthenaModelType GIANT_TYPE = new AthenaModelType(Materials.CODEC.xmap((materials -> new GiantBlockModel(materials, false)), (model) -> model.materials),true);
-    public static final AthenaModelType MURAL_TYPE = new AthenaModelType(Materials.CODEC.xmap((materials -> new GiantBlockModel(materials, true)), (model) -> model.materials),true);
+    public static final AthenaModelType GIANT_TYPE = new AthenaModelType(Materials.CODEC.xmap((materials -> new GiantBlockModel(materials, false)), (model) -> model.materials));
+    public static final AthenaModelType MURAL_TYPE = new AthenaModelType(Materials.CODEC.xmap((materials -> new GiantBlockModel(materials, true)), (model) -> model.materials));
 
     private final Materials materials;
     private final boolean mural;
