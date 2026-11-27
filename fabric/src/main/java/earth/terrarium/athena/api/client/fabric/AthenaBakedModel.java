@@ -28,16 +28,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel {
 
     private static final Direction[] DIRECTIONS = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN};
+    private static final float DEPTH_OFFSET = 0.001f;
 
     private final Map<AthenaBlockModel.Part, BakedPart> bakedParts = new HashMap<>();
 
@@ -81,8 +79,11 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
         for (Direction side : DIRECTIONS) {
             if (cullTest.test(side)) continue;
 
+            float depthOffset = 0f;
+
             for (AthenaBlockModel.Part part : parts) {
-                this.bakedParts.get(part).emitQuads(emitter, side, part.getQuads(getter, state, pos, side));
+                this.bakedParts.get(part).emitQuads(emitter, side, part.getQuads(getter, state, pos, side), depthOffset);
+                depthOffset -= DEPTH_OFFSET;
             }
         }
     }
@@ -120,13 +121,13 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
             this.info = new BlockStateModelMaterialInfo(this.materials);
         }
 
-        private void emitQuads(QuadEmitter emitter, @Nullable Direction side, List<AthenaQuad> quads) {
+        private void emitQuads(QuadEmitter emitter, @Nullable Direction side, List<AthenaQuad> quads, float depthOffset) {
             for (var sprite : quads) {
                 var material = this.materials.get(sprite.sprite());
                 if (material == null) {
                     continue;
                 }
-                emitter.square(side, sprite.left(), sprite.bottom(), sprite.right(), sprite.top(), sprite.depth());
+                emitter.square(side, sprite.left(), sprite.bottom(), sprite.right(), sprite.top(), sprite.depth() + depthOffset);
 
                 int flag = MutableQuadView.BAKE_LOCK_UV;
 
@@ -164,7 +165,8 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
                     this.emitQuads(
                         mesh.emitter(),
                         direction,
-                        this.part.getDefaultQuads(direction).getOrDefault(direction, List.of())
+                        this.part.getDefaultQuads(direction).getOrDefault(direction, List.of()),
+                        0f
                     );
 
                     var atlases = Minecraft.getInstance().getAtlasManager();

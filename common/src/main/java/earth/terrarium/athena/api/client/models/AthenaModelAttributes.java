@@ -11,7 +11,7 @@ public class AthenaModelAttributes {
     public static final MapCodec<AthenaModelAttributes> TINT_CODEC = RecordCodecBuilder.<AthenaModelAttributes>mapCodec((instance) ->
         instance.group(
             TintProvider.CODEC.optionalFieldOf("tint").forGetter((attributes) -> attributes.tint),
-            Codec.intRange(0, 15).fieldOf("light_emission").forGetter(AthenaModelAttributes::getLightEmission)
+            Codec.intRange(0, 15).optionalFieldOf("light_emission", 0).forGetter(AthenaModelAttributes::getLightEmission)
         ).apply(instance, AthenaModelAttributes::new)
     );
 

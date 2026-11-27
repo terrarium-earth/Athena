@@ -28,6 +28,7 @@ import java.util.function.Function;
 public class AthenaBakedModel implements BlockStateModel {
 
     private static final Direction[] DIRECTIONS = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN};
+    private static final float DEPTH_OFFSET = 0.001f;
 
     private final Map<AthenaBlockModel.Part, BakedPart> bakedParts = new HashMap<>();
 
@@ -43,8 +44,9 @@ public class AthenaBakedModel implements BlockStateModel {
         int materialFlags = 0;
         Material.Baked particleMaterial = null;
 
+        float depthOffset = 0f;
         for (AthenaBlockModel.Part part : model.getAllParts(state)) {
-            var bakedPart = new BakedPart(part, materialBaker);
+            var bakedPart = new BakedPart(part, materialBaker, depthOffset);
 
             if (particleMaterial == null) {
                 particleMaterial = bakedPart.particleMaterial();
@@ -53,6 +55,7 @@ public class AthenaBakedModel implements BlockStateModel {
             materialFlags |= bakedPart.materialFlags();
 
             bakedParts.put(part, bakedPart);
+            depthOffset += DEPTH_OFFSET;
         }
 
         this.materialFlags = materialFlags;
@@ -65,6 +68,7 @@ public class AthenaBakedModel implements BlockStateModel {
 
     @Override
     public void collectParts(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull List<BlockStateModelPart> parts) {
+        float depthOffset = 0f;
         for (AthenaBlockModel.Part part : this.model.selectParts(random, state)) {
             var baked = this.bakedParts.get(part);
 
@@ -79,9 +83,11 @@ public class AthenaBakedModel implements BlockStateModel {
                     ),
                     baked.materials,
                     baked.attributes.getTint(),
-                    baked.attributes.getLightEmission()
+                    baked.attributes.getLightEmission(),
+                    depthOffset
                 )
             );
+            depthOffset += DEPTH_OFFSET;
         }
     }
 
@@ -143,12 +149,14 @@ public class AthenaBakedModel implements BlockStateModel {
         private final BlockStateModelMaterialInfo info;
         private final Int2ObjectMap<Material.Baked> materials;
         private final AthenaModelAttributes attributes;
+        private final float depthOffset;
 
-        public BakedPart(AthenaBlockModel.Part part, Function<Material, Material.Baked> materialBaker) {
+        public BakedPart(AthenaBlockModel.Part part, Function<Material, Material.Baked> materialBaker, float depthOffset) {
             this.part = part;
             this.materials = part.getTextures(materialBaker);
             this.attributes = part.getAttributes();
             this.info = new BlockStateModelMaterialInfo(this.materials);
+            this.depthOffset = depthOffset;
         }
 
         @Override
@@ -164,7 +172,7 @@ public class AthenaBakedModel implements BlockStateModel {
                     for (var quad : entry.getValue()) {
                         var material = materials.get(quad.sprite());
                         if (material == null) continue;
-                        quads.add(ForgeAthenaUtils.bakeQuad(quad, entry.getKey(), material, tint, lightEmission));
+                        quads.add(ForgeAthenaUtils.bakeQuad(quad, entry.getKey(), material, tint, lightEmission, this.depthOffset));
                     }
                 }
 

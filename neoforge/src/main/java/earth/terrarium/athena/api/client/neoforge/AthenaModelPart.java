@@ -22,7 +22,8 @@ public record AthenaModelPart(
         @NotNull NullableEnumMap<Direction, Map<Direction, List<AthenaQuad>>> quads,
         @NotNull Int2ObjectMap<Material.Baked> materials,
         @Nullable TintProvider tint,
-        int lightEmission
+        int lightEmission,
+        float depthOffset
 ) implements BlockStateModelPart {
 
     @Override
@@ -32,7 +33,7 @@ public record AthenaModelPart(
             for (var quad : quadList) {
                 var material = materials.get(quad.sprite());
                 if (material == null) continue;
-                quads.add(ForgeAthenaUtils.bakeQuad(quad, dir, material, this.tint, this.lightEmission));
+                quads.add(ForgeAthenaUtils.bakeQuad(quad, dir, material, this.tint, this.lightEmission, this.depthOffset));
             }
         });
         return quads;
