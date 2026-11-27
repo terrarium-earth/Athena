@@ -81,10 +81,9 @@ public interface AthenaBlockModel {
     }
 
     /**
-     * Return every {@link Part} that this model can select via the {@link Consumer<Part>} output in {@link selectParts}
+     * {@return every {@link Part} that this model can select via {@link selectParts}}
      *
      * @param state The block state to select the possible parts for
-     * @return The parts which can be selected
      */
     default List<Part> getAllParts(BlockState state) {
         return AthenaSimpleUnbakedPartCache.simpleUnbakedPart(this);
