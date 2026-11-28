@@ -7,6 +7,7 @@ import earth.terrarium.athena.api.client.utils.NullableEnumMap;
 import earth.terrarium.athena.impl.internal.AthenaUnbakedModel;
 import earth.terrarium.athena.impl.internal.BlockStateModelMaterialInfo;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import java.util.EnumMap;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -69,7 +70,7 @@ public class AthenaBakedModel implements BlockStateModel {
     @Override
     public void collectParts(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull List<BlockStateModelPart> parts) {
         float depthOffset = 0f;
-        for (AthenaBlockModel.Part part : this.model.selectParts(random, state)) {
+        for (AthenaBlockModel.Part part : this.model.selectParts(random, this.state)) {
             var baked = this.bakedParts.get(part);
 
             parts.add(
@@ -128,7 +129,14 @@ public class AthenaBakedModel implements BlockStateModel {
 
     @Override
     public @NotNull Object createGeometryKey(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random) {
-        return this.model.selectParts(random, state);
+        var getter = new WrappedGetter(level);
+        Map<Direction, List<AthenaQuad>> geometryKey = new EnumMap<>(Direction.class);
+        for (AthenaBlockModel.Part part : this.model.selectParts(random, this.state)) {
+            for (Direction direction : DIRECTIONS) {
+                geometryKey.computeIfAbsent(direction, _ -> new ArrayList<>()).addAll(part.getQuads(getter, state, pos, direction));
+            }
+        }
+        return geometryKey;
     }
 
     @Override
