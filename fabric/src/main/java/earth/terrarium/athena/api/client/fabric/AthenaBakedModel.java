@@ -74,7 +74,7 @@ public class AthenaBakedModel implements BlockStateModel, FabricBlockStateModel 
     @Override
     public void emitQuads(@NotNull QuadEmitter emitter, @NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull RandomSource random, @NotNull Predicate<@Nullable Direction> cullTest) {
         WrappedGetter getter = new WrappedGetter(level);
-        List<AthenaBlockModel.Part> parts = model.selectParts(random, state);
+        List<AthenaBlockModel.Part> parts = model.selectParts(random, this.state);
 
         for (Direction side : DIRECTIONS) {
             if (cullTest.test(side)) continue;
